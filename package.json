@@ -1,0 +1,22 @@
+{
+  "name": "RestRace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://chirimorin@github.com/Chirimorin/Cloud-Services-Rest-Race.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chirimorin/Cloud-Services-Rest-Race/issues"
+  },
+  "homepage": "https://github.com/Chirimorin/Cloud-Services-Rest-Race",
+  "dependencies": {
+    "express": "^4.12.2"
+  }
+}
