@@ -7,9 +7,13 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 
+require('./models/location.js')(mongoose);
+require('./models/user.js')(mongoose);
+require('./models/race.js')(mongoose);
+
 var routes = require('./routes/index');
 var users = require('./routes/users');
-var races = require('./routes/races');
+var races = require('./routes/races')(mongoose);
 var locations = require('./routes/locations');
 var session      = require('express-session');
 

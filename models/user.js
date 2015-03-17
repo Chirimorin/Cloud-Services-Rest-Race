@@ -31,9 +31,9 @@ function init(mongoose){
                 name         : String
             }
         },
-		races: [{ type : ObjectId, ref: 'Race' }],
+		races: [{ type : String, ref: 'Race' }],
         visitedLocations: [{
-            location: { type: ObjectId, ref: 'Location', required: true },
+            location: { type: String, ref: 'Location', required: true },
             time: { type: Date, required: true }
         }]
 	});
