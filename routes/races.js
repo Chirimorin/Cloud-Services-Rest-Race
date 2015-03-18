@@ -8,7 +8,7 @@ function getAllRaces(req, res){
 	Race.find({}, function(err, races){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
-			res.status(201);
+			res.status(200);
 			res.json(races);
 		}
 	});
@@ -19,7 +19,7 @@ function getRaceByID(req, res){
 	Race.findById(req.params.id, function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
-			res.status(201);
+			res.status(200);
 			res.json(race);
 		}
 	});
@@ -42,7 +42,7 @@ function updateRaceByID(req, res){
 	Race.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
-			res.status(201);
+			res.status(200);
 			res.json(race);
 		}
     });
@@ -53,7 +53,7 @@ function deleteRaceByID(req, res){
 	Race.findByIdAndRemove(req.params.id, function (err, result){
 		if(err){ return handleError(req, res, 500, deletedRace); }
 		else {
-			res.status(201);
+			res.status(200);
 			res.json(deletedRace);
 		}
     });
