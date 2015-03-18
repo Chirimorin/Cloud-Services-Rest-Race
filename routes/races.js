@@ -5,10 +5,10 @@ var handleError;
 
 // Get all races
 function getAllRaces(req, res){
-	var result = Race.find({});
-	result.exec(function(err, races){
+	Race.find({}, function(err, races){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
+			res.status(201);
 			res.json(races);
 		}
 	});
@@ -16,10 +16,10 @@ function getAllRaces(req, res){
 
 // Get race by ID
 function getRaceByID(req, res){
-	var result = Race.find({_id:req.params.id});
-	result.exec(function(err, race){
+	Race.findById(req.params.id, function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
+			res.status(201);
 			res.json(race);
 		}
 	});
@@ -37,13 +37,24 @@ function addRace(req, res){
 	});
 }
 
-// Delete race by ID
-function deleteRaceByID(req, res){
-	var result = Race.find({_id:req.params.id});
-	result.remove(function ( err, race){
+// Update race by ID
+function updateRaceByID(req, res){
+	Race.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
-			res.redirect('/');
+			res.status(201);
+			res.json(race);
+		}
+    });
+}
+
+// Delete race by ID
+function deleteRaceByID(req, res){
+	Race.findByIdAndRemove(req.params.id, function (err, result){
+		if(err){ return handleError(req, res, 500, deletedRace); }
+		else {
+			res.status(201);
+			res.json(deletedRace);
 		}
     });
 }
@@ -55,6 +66,7 @@ router.route('/')
 
 router.route('/:id')
 	.get(getRaceByID)
+	.put(updateRaceByID)
 	.delete(deleteRaceByID);
 
 // Export
