@@ -10,4 +10,9 @@ router.get('/', function(req, res, next) {
     res.send('respond with a resource');
 });
 
-module.exports = router;
+
+module.exports = function (mongoose, passport, errCallback){
+    User = mongoose.model('User');
+    handleError = errCallback;
+    return router;
+};
