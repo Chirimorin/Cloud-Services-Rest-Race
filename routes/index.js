@@ -9,22 +9,24 @@ module.exports = function(passport) {
         res.render('index', {title: 'Express'});
     });
 
-    //router.post('/login', passport.authenticate('local-login', function(err, user, info) {
-    //    if (err) { return next(err); }
-    //    if (!user) { return res.redirect('/login'); }
-    //    req.logIn(user, function(err) {
-    //        if (err) { return next(err); }
-    //        return res.redirect('/users/' + user.username);
-    //    });
-    //}));
-
     router.post('/login', function(req, res, next) {
         passport.authenticate('local-login', function(err, user, info) {
             if (err) { return next(err); }
             if (!user) { return res.send({ 'authenticated': false, 'error': "Incorrect username or password"}); }
             req.logIn(user, function(err) {
                 if (err) { return next(err); }
-                return res.redirect('/users/' + user.username);
+                return res.send(user);
+            });
+        })(req, res, next);
+    });
+
+    router.post('/signup', function(req, res, next) {
+        passport.authenticate('local-signup', function(err, user, info) {
+            if (err) { return next(err); }
+            if (!user) { return res.send({ 'authenticated': false, 'error': "Could not sign up"}); }
+            req.logIn(user, function(err) {
+                if (err) { return next(err); }
+                return res.send(user);
             });
         })(req, res, next);
     });
