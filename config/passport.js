@@ -71,6 +71,23 @@ module.exports = function(passport) {
                         // set the user's local credentials
                         newUser.logins.local.email    = email;
                         newUser.logins.local.password = newUser.generateHash(password);
+
+                        var newUuid = uuid.v4();
+
+                        function uuidExists(value) {
+                            User.findOne({'authKey': newUuid}, function (err, foundUser) {
+                                if (user) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                        }
+
+                        while (uuidExists(newUuid)) {
+                            newUuid = uuid.v4();
+                        }
+
                         newUser.authKey = uuid.v4();
 
                         // save the user
