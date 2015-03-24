@@ -10,7 +10,6 @@ var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 
 	var userSchema = new mongoose.Schema({
-        _id: { type: String, required: true, unique: true, lowercase: true },
         logins: {
             local            : {
                 email        : String,
@@ -29,6 +28,8 @@ var bcrypt   = require('bcrypt-nodejs');
                 name         : String
             }
         },
+        nickname: { type: String },
+        authKey: { type: String, required: true },
 		races: [{ type : String, ref: 'Race' }],
         visitedLocations: [{
             location: { type: String, ref: 'Location', required: true },
@@ -44,7 +45,7 @@ var bcrypt   = require('bcrypt-nodejs');
 
     // checking if password is valid
     userSchema.methods.validPassword = function(password) {
-        return bcrypt.compareSync(password, this.local.password);
+        return bcrypt.compareSync(password, this.logins.local.password);
     };
 
 

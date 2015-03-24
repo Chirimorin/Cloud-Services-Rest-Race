@@ -5,10 +5,13 @@
 // config/passport.js
 
 // load all the things we need
-var LocalStrategy   = require('passport-local').Strategy;
+var LocalStrategy       = require('passport-local').Strategy;
+var LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
 
 // load up the user model
 var User            = require('../models/user');
+
+var uuid = require('node-uuid');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -51,7 +54,7 @@ module.exports = function(passport) {
 
                 // find a user whose email is the same as the forms email
                 // we are checking to see if the user trying to login already exists
-                User.findOne({ 'local.email' :  email }, function(err, user) {
+                User.findOne({ 'logins.local.email' :  email }, function(err, user) {
                     // if there are any errors, return the error
                     if (err)
                         return done(err);
@@ -66,8 +69,26 @@ module.exports = function(passport) {
                         var newUser            = new User();
 
                         // set the user's local credentials
-                        newUser.local.email    = email;
-                        newUser.local.password = newUser.generateHash(password);
+                        newUser.logins.local.email    = email;
+                        newUser.logins.local.password = newUser.generateHash(password);
+
+                        var newUuid = uuid.v4();
+
+                        function uuidExists(value) {
+                            User.findOne({'authKey': newUuid}, function (err, foundUser) {
+                                if (user) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                        }
+
+                        while (uuidExists(newUuid)) {
+                            newUuid = uuid.v4();
+                        }
+
+                        newUser.authKey = uuid.v4();
 
                         // save the user
                         newUser.save(function(err) {
@@ -117,4 +138,13 @@ module.exports = function(passport) {
 
         }));
 
+    passport.use('authKey', new LocalAPIKeyStrategy(
+        function(authKey, done) {
+            User.findOne({ authKey: authKey }, function (err, user) {
+                if (err) { return done(err); }
+                if (!user) { return done(null, false); }
+                return done(null, user);
+            });
+        }
+    ));
 };
