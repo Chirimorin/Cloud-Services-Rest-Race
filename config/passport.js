@@ -5,10 +5,13 @@
 // config/passport.js
 
 // load all the things we need
-var LocalStrategy   = require('passport-local').Strategy;
+var LocalStrategy       = require('passport-local').Strategy;
+var LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
 
 // load up the user model
 var User            = require('../models/user');
+
+var uuid = require('node-uuid');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -68,6 +71,7 @@ module.exports = function(passport) {
                         // set the user's local credentials
                         newUser.logins.local.email    = email;
                         newUser.logins.local.password = newUser.generateHash(password);
+                        newUser.authKey = uuid.v4();
 
                         // save the user
                         newUser.save(function(err) {
@@ -117,4 +121,13 @@ module.exports = function(passport) {
 
         }));
 
+    passport.use('authKey', new LocalAPIKeyStrategy(
+        function(authKey, done) {
+            User.findOne({ authKey: authKey }, function (err, user) {
+                if (err) { return done(err); }
+                if (!user) { return done(null, false); }
+                return done(null, user);
+            });
+        }
+    ));
 };

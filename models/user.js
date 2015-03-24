@@ -29,6 +29,7 @@ var bcrypt   = require('bcrypt-nodejs');
             }
         },
         nickname: { type: String },
+        authKey: { type: String, required: true },
 		races: [{ type : String, ref: 'Race' }],
         visitedLocations: [{
             location: { type: String, ref: 'Location', required: true },

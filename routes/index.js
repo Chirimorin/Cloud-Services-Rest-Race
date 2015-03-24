@@ -31,8 +31,25 @@ module.exports = function(passport) {
         })(req, res, next);
     });
 
+    router.post('/auth',passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),
+        function (req,res,next) {
+            res.json({ message: "Authenticated!" });
+        }
+    );
+
+    router.get('/auth',passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),
+        function (req,res,next) {
+            res.json({ message: "Authenticated!" });
+        }
+    );
+
     router.get('/login', function (req,res,next) {
         res.send('login page');
+    });
+
+    router.get('/unauthorized', function(req,res,next) {
+        res.status(401);
+        res.json({ message: "Unauthorized" });
     });
 
     return router;
