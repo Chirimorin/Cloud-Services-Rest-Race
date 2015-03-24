@@ -31,8 +31,10 @@ module.exports = function(passport) {
         })(req, res, next);
     });
 
+    // Standaard auth, bij elke request
     router.post('/auth',passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),
         function (req,res,next) {
+            // Hier de request afhandelen.
             res.json({ message: "Authenticated!" });
         }
     );
