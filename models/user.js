@@ -9,8 +9,6 @@ visitedlocations { location: location, tijd: tijd }
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 
-function init(mongoose){
-
 	var userSchema = new mongoose.Schema({
         _id: { type: String, required: true, unique: true, lowercase: true },
         logins: {
@@ -37,8 +35,17 @@ function init(mongoose){
             time: { type: Date, required: true }
         }]
 	});
-	
-	mongoose.model('User', userSchema);
-}
 
-module.exports = init;
+    // methods ======================
+    // generating a hash
+    userSchema.methods.generateHash = function(password) {
+        return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+    };
+
+    // checking if password is valid
+    userSchema.methods.validPassword = function(password) {
+        return bcrypt.compareSync(password, this.local.password);
+    };
+
+
+module.exports = mongoose.model('User', userSchema);
