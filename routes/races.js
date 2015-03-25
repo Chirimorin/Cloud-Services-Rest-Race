@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var passport = require('passport');
 var Race;
 var handleError;
 
@@ -66,8 +67,8 @@ function deleteRaceByID(req, res){
 
 // Controleren of dit werkt
 router.route('/')
-    .get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),getAllRaces)
-    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),addRace);
+    .get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), getAllRaces)
+    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);
 
 router.route('/:id')
 	.get(getRaceByID)
