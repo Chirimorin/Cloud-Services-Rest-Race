@@ -17,5 +17,17 @@ function makeRequest(route, statusCode, done) {
 };
 
 describe('Testing races route', function(){
-	it('test bla bla');
+	describe('Get /races', function(){
+		
+		it('should return 403 when not logged in', function(done){
+			request(app)
+				.get('/races')
+				.expect(403)
+				.end(function(err, res){
+					if(err) { return done(err); }
+					done();
+				})
+		});
+		
+	});
 });
