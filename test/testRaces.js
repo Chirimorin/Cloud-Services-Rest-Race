@@ -6,6 +6,8 @@ var should = require('chai').should();
 var app = require('../app');
 var User = require('mongoose').model('User');
 
+passportStub.install(app);
+
 function makeRequest(route, statusCode, done) {
 	request(app)
 		.get(route)
