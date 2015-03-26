@@ -49,6 +49,28 @@ function updateRaceByID(req, res){
     });
 }
 
+// Add participant to a race
+function addParticipant(req, res){
+	Race.findById(req.params.id, {$push:{participants:req.body}}, function(err, race){
+		if(err){ return handleError(req, res, 500, err); }
+		else {
+			res.status(200);
+			res.json(race);
+		}
+	});
+}
+
+// Remove participant from a race
+function removeParticipant(req, res){
+	Race.findById(req.params.id, {$pull:{participants:req.body}}, function(err, race){
+		if(err){ return handleError(req, res, 500, err); }
+		else {
+			res.status(200);
+			res.json(race);
+		}
+	});
+}
+
 // Delete race by ID
 function deleteRaceByID(req, res){
 	Race.findByIdAndRemove(req.params.id, function (err, result){
@@ -61,19 +83,26 @@ function deleteRaceByID(req, res){
 }
 
 // Routing
-//router.route('/')
-//	.get(getAllRaces)
-//	.post(addRace);
+router.route('/')
+	.get(getAllRaces)
+	.post(addRace);
 
 // Controleren of dit werkt
-router.route('/')
+/*router.route('/')
     .get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), getAllRaces)
-    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);
+    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);*/
 
 router.route('/:id')
 	.get(getRaceByID)
-	.put(updateRaceByID)
+	.put(updateRaceByID) // Nodig?
+	.put(addParticipant)
 	.delete(deleteRaceByID);
+	
+router.route('/:id/participant')
+	.put(addParticipant)
+
+router.route('/:id/participant/:participantID')
+	.put(removeParticipant);
 
 // Export
 module.exports = function (mongoose, errCallback){
