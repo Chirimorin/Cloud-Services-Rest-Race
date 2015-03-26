@@ -1,9 +1,10 @@
+var passportStub = require('passport-stub');
 var request = require('supertest');
 var expect = require('chai').expect;
 var should = require('chai').should();
 
 var app = require('../app');
-var Race = require('mongoose').model('Race');
+var User = require('mongoose').model('User');
 
 function makeRequest(route, statusCode, done) {
 	request(app)
@@ -25,6 +26,15 @@ describe('Testing races route', function() {
 				
 				done();
 			});			
+		});
+		
+		it('should return 200 when logged in', function(done) {
+			passportStub.login(new User());
+			makeRequest('/races', 200, function(err, res) {
+				if(err){ return done(err); }
+				
+				done();
+			});	
 		});
 		
 	});
