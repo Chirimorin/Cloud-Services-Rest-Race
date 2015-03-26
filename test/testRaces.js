@@ -16,17 +16,15 @@ function makeRequest(route, statusCode, done) {
 		});
 };
 
-describe('Testing races route', function(){
-	describe('Get /races', function(){
+describe('Testing races route', function() {
+	describe('Get /races', function() {
 		
-		it('should return 403 when not logged in', function(done){
-			request(app)
-				.get('/races')
-				.expect(403)
-				.end(function(err, res){
-					if(err) { return done(err); }
-					done();
-				})
+		it('should return 403 when not logged in', function(done) {
+			makeRequest('/races', 403, function(err, res) {
+				if(err){ return done(err); }
+				
+				done();
+			});			
 		});
 		
 	});
