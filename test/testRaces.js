@@ -22,6 +22,10 @@ function makeRequest(route, statusCode, done) {
 describe('Testing races route', function() {
 	describe('Get /races', function() {
 		
+		/*beforeEach(function(done){
+			testdata.fillTestdata(done);
+		});*/
+		
 		it('should return 403 when not logged in', function(done) {
 			makeRequest('/races', 403, function(err, res) {
 				if(err){ return done(err); }
@@ -38,6 +42,18 @@ describe('Testing races route', function() {
 				done();
 			});	
 		});
+		
+		it('should return 3 races', function(done) {
+			passportStub.login(new User());
+			makeRequest('/races', 200, function(err, res) {
+				if(err){ return done(err); }
+				
+				expect(res.body.races).to.not.be.undefined;
+				expect(res.body.races).to.have.length(3);
+					
+				done();
+			});	
+		});	
 		
 	});
 });
