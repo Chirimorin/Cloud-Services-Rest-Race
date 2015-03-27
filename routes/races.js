@@ -83,14 +83,14 @@ function deleteRaceByID(req, res){
 }
 
 // Routing
-router.route('/')
+/*router.route('/')
 	.get(getAllRaces)
-	.post(addRace);
+	.post(addRace);*/
 
 // Controleren of dit werkt
-/*router.route('/')
+router.route('/')
     .get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), getAllRaces)
-    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);*/
+    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);
 
 router.route('/:id')
 	.get(getRaceByID)
