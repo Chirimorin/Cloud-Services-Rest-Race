@@ -27,6 +27,7 @@ function getRaceByID(req, res){
 }
 
 // Add race
+// Nodig: name, hasSpecificOrder, startTime, endTime (optional), private
 function addRace(req, res){
 	var race = new Race(req.body);
 	race.save(function(err, savedRace){
@@ -39,6 +40,7 @@ function addRace(req, res){
 }
 
 // Update race by ID
+// Nodig: name, hasSpecificOrder, startTime, endTime (optional), private
 function updateRaceByID(req, res){
 	Race.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, race){
 		if(err){ return handleError(req, res, 500, err); }
@@ -102,7 +104,7 @@ router.route('/:id/participant')
 	.put(addParticipant)
 
 router.route('/:id/participant/:participantID')
-	.put(removeParticipant);
+	.delete(removeParticipant);
 
 // Export
 module.exports = function (mongoose, errCallback){
