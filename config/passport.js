@@ -13,6 +13,26 @@ var User            = require('../models/user');
 
 var uuid = require('node-uuid');
 
+function getUUID() {
+    var newUuid = uuid.v4();
+
+    function uuidExists(value) {
+        User.findOne({'authKey': newUuid}, function (err, foundUser) {
+            if (foundUser) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    while (uuidExists(newUuid)) {
+        newUuid = uuid.v4();
+    }
+
+    return newUuid;
+}
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -66,29 +86,13 @@ module.exports = function(passport) {
 
                         // if there is no user with that email
                         // create the user
-                        var newUser            = new User();
+                        var newUser = new User();
 
                         // set the user's local credentials
                         newUser.logins.local.email    = email;
                         newUser.logins.local.password = newUser.generateHash(password);
 
-                        var newUuid = uuid.v4();
-
-                        function uuidExists(value) {
-                            User.findOne({'authKey': newUuid}, function (err, foundUser) {
-                                if (user) {
-                                    return true;
-                                } else {
-                                    return false;
-                                }
-                            });
-                        }
-
-                        while (uuidExists(newUuid)) {
-                            newUuid = uuid.v4();
-                        }
-
-                        newUser.authKey = uuid.v4();
+                        newUser.authKey = getUUID();
 
                         // save the user
                         newUser.save(function(err) {
@@ -133,6 +137,15 @@ module.exports = function(passport) {
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
                 // all is well, return successful user
+
+                if (user.authKey == null) {
+                    user.authKey = getUUID();
+                    user.save(function(err) {
+                        if (err)
+                            throw err;
+                    })
+                }
+
                 return done(null, user);
             });
 
