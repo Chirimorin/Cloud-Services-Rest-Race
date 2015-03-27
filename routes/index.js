@@ -49,6 +49,21 @@ module.exports = function(passport) {
         res.send('login page');
     });
 
+    router.get('/logout', passport.authenticate('authKey', { failureRedirect: '/' }),
+        function (req,res,next) {
+            var user = req.user;
+            user.authKey = null;
+
+            // save the user
+            user.save(function(err) {
+                if (err)
+                    throw err;
+            });
+
+            res.json(user);
+        }
+    );
+
     router.get('/unauthorized', function(req,res,next) {
         res.status(401);
         res.json({ message: "Unauthorized" });
