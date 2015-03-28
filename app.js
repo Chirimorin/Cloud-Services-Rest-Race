@@ -19,10 +19,21 @@ mongoose.connect(configDB.url); // connect to our database
 
 require('./config/passport')(passport); // pass passport for configuration
 
+function handleError(req, res, statusCode, message){
+    console.log();
+    console.log('-------- Error handled --------');
+    console.log('Request Params: ' + JSON.stringify(req.params));
+    console.log('Request Body: ' + JSON.stringify(req.body));
+    console.log('Response sent: Statuscode ' + statusCode + ', Message "' + message + '"');
+    console.log('-------- /Error handled --------');
+    res.status(statusCode);
+    res.json(message);
+};
+
 var routes = require('./routes/index')(passport);
 var users = require('./routes/users')(mongoose, passport);
-var races = require('./routes/races')(mongoose);
-var locations = require('./routes/locations');
+var races = require('./routes/races')(mongoose, handleError);
+var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
 
 var app = express();

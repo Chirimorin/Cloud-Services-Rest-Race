@@ -12,7 +12,7 @@ eindtijd
 function init(mongoose){
 
 	var raceSchema = new mongoose.Schema({
-        _id: { type: String, required: true, unique: true, lowercase: true },
+        //_id: { type: String, required: true, unique: true, lowercase: true },
 		name: { type: String, required: true },
         owners: [{ type : String, ref: 'User' }],
         participants: [{ type : String, ref: 'User' }],
