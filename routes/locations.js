@@ -35,6 +35,8 @@ function addLocation(req, res){
         long: 1, // MOET NOG !!!
 		distance: req.body.distance
 	});
+	typeof req.body.description != "undefined" ? location["description"] = req.body.description : location["description"] = null; 	
+	
 	location.save(function(err, location){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
@@ -46,7 +48,10 @@ function addLocation(req, res){
 
 // Update location by ID
 function updateLocationByID(req, res){
-	Location.findByIdAndUpdate(req.params.id, {$set: {name: req.body.name, description: req.body.description, lat: 1, long: 1, // MOET NOG !!!
+	var description;
+	typeof req.body.description != "undefined" ? description = req.body.description : description = null; 	
+	
+	Location.findByIdAndUpdate(req.params.id, {$set: {name: req.body.name, description: description, lat: 1, long: 1, // MOET NOG !!!
 	distance: req.body.distance}}, function (err, location){
 		if(err){ return handleError(req, res, 500, err); }
 		else {

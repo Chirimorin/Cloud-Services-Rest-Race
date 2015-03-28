@@ -32,9 +32,10 @@ function addRace(req, res){
 		name: req.body.name,
 		hasSpecificOrder: req.body.hasSpecificOrder,
 		startTime: req.body.startTime,
-		endTime: req.body.endTime,
 		private: req.body.private
 	});
+	typeof req.body.endTime != "undefined" ? race["endTime"] = req.body.endTime : location["endTime"] = null; 
+	
 	race.save(function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
@@ -46,7 +47,10 @@ function addRace(req, res){
 
 // Update race by ID
 function updateRaceByID(req, res){
-	Race.findByIdAndUpdate(req.params.id, {$set: {name: req.body.name, hasSpecificOrder: req.body.hasSpecificOrder, startTime: req.body.startTime, endTime: req.body.endTime, private: req.body.private}}, function (err, race){
+	var endTime;
+	typeof req.body.endTime != "undefined" ? endTime = req.body.endTime : endTime = null;
+	
+	Race.findByIdAndUpdate(req.params.id, {$set: {name: req.body.name, hasSpecificOrder: req.body.hasSpecificOrder, startTime: req.body.startTime, endTime: endTime, private: req.body.private}}, function (err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
 			res.status(200);
@@ -133,9 +137,14 @@ function removeLocation(req, res){
 	});
 }
 
+// Add location to users visited locations
+function addLocationToVisitedLocations(req, res){
+	
+}
+
 router.route('/')
     .get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), getAllRaces)
-    .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);
+	.post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), addRace);
 
 router.route('/:id')
 	.get(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), getRaceByID)
@@ -151,10 +160,13 @@ router.route('/:id/participant')
 	.delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 	
 router.route('/:id/location')
-	.post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocation)
+	.post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocation);
 	
 router.route('/:id/location/:idLocation')	
 	.delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeLocation);
+	
+router.route('/:id/location/:lat/:long')
+	.put(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocationToVisitedLocations);
 
 // Export
 module.exports = function (mongoose, errCallback){
