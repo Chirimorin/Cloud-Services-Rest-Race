@@ -33,8 +33,8 @@ function handleError(req, res, statusCode, message){
 
 var routes = require('./routes/index')(passport);
 var users = require('./routes/users')(mongoose, passport, roles, handleError);
-var races = require('./routes/races')(mongoose);
-var locations = require('./routes/locations');
+var races = require('./routes/races')(mongoose, handleError);
+var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
 
 var app = express();
