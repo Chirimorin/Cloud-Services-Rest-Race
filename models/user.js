@@ -8,7 +8,7 @@ visitedlocations { location: location, tijd: tijd }
 
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
-//var _ = require('underscore');
+var _ = require('underscore');
 
 	var userSchema = new mongoose.Schema({
         roles 			     : [String],
