@@ -5,11 +5,17 @@
 var express = require('express');
 var router = express();
 var handleError;
+var User;
 
 /* GET users listing. */
 function getUsers(req, res, next) {
-    console.log("testUsers");
-    res.send('respond with a resource');
+    User.find({}, function(err, users){
+        if(err){ return handleError(req, res, 500, err); }
+        else {
+            res.status(200);
+            res.json(users);
+        }
+    });
 }
 
 
