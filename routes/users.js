@@ -41,6 +41,53 @@ function setUserNickname(req,res,next) {
     });
 }
 
+function addUserRole(req,res,next) {
+    User.findById(req.params.id, function(err, user){
+        if(err){ return handleError(req, res, 500, err); }
+        else {
+            if (!user) {
+                res.status(404);
+                res.json({ status: 404, message: "User not found" });
+            } else {
+                if (user.roles.indexOf(req.body.role) == -1) {
+                    user.roles.push(req.body.role);
+                    user.save(function (err, user) {
+                        if (err) {
+                            return handleError(req, res, 500, err);
+                        }
+                    });
+                }
+                res.status(200);
+                res.json({status: 200, message: "Gebruikersrol successvol toegevoegd."});
+            }
+        }
+    });
+}
+
+function deleteUserRole(req,res,next) {
+    User.findById(req.params.id, function(err, user){
+        if(err){ return handleError(req, res, 500, err); }
+        else {
+            if (!user) {
+                res.status(404);
+                res.json({ status: 404, message: "User not found" });
+            } else {
+                var roleIndex =  user.roles.indexOf(req.body.role)
+                if (roleIndex != -1) {
+                    user.roles.splice(roleIndex, 1);
+                    user.save(function (err, user) {
+                        if (err) {
+                            return handleError(req, res, 500, err);
+                        }
+                    });
+                }
+                res.status(200);
+                res.json({status: 200, message: "Gebruikersrol successvol verwijderd."});
+            }
+        }
+    });
+}
+
 module.exports = function (mongoose, passport, role, errCallback){
     console.log("Loading users route...");
 
@@ -55,6 +102,10 @@ module.exports = function (mongoose, passport, role, errCallback){
 
     router.route('/:id/nickname')
         .put(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), role.can('edit users'), setUserNickname);
+
+    router.route('/:id/roles')
+        .post(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), role.can('edit users'), addUserRole)
+        .delete(passport.authenticate('authKey', { failureRedirect: '/unauthorized' }), role.can('edit users'), deleteUserRole);
 
     return router;
 };

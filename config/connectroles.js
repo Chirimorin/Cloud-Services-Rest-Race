@@ -15,10 +15,9 @@ module.exports = function(){
 
     // Admins can do everything
     roles.use(function (req) {
-            if (req.user.hasAnyRole('admin')) {
-                console.log("is admin");
-                return true;
-            }
+        if (req.user.hasAnyRole('admin')) {
+            return true;
+        }
     });
 
     return roles;
