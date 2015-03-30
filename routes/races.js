@@ -27,6 +27,7 @@ function getRaceByID(req, res){
 }
 
 // Add race
+// Nodig: name, hasSpecificOrder, startTime, endTime (optional), private
 function addRace(req, res){
 	var race = new Race({
 		name: req.body.name,
@@ -46,6 +47,7 @@ function addRace(req, res){
 }
 
 // Update race by ID
+// Nodig: name, hasSpecificOrder, startTime, endTime (optional), private
 function updateRaceByID(req, res){
 	var endTime;
 	typeof req.body.endTime != "undefined" ? endTime = req.body.endTime : endTime = null;

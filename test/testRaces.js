@@ -3,25 +3,7 @@ var expect = require('chai').expect;
 var should = require('chai').should();
 
 var app = require('../app');
-var User            = require('../models/user');
-//var User = require('mongoose').model('User');
-
-passportStub.install(app);
-
-
-var testUser = {
-    "_id" : "551181913402a0080411d5af",
-    "visitedLocations" : [],
-    "races" : [],
-    "logins" : {
-        "local" : {
-            "password" : "$2a$08$EbIlLYaVzatp0Puz5Co3Vu4ObWH.QpvlLriGuWXQiFq2KdX9UQh6y",
-            "email" : "blah2@blah.com"
-        }
-    },
-    "__v" : 0,
-    "authKey" : "e6142f65-2c8f-4e9c-9604-23d56f48f765"
-};
+var User = require('mongoose').model('User');
 
 function makeRequest(route, statusCode, done) {
 	request(app)

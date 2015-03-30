@@ -25,7 +25,10 @@
         "passport-google-oauth" : "~0.1.5",
         "passport-localapikey": "~0.0.3",
         "connect-flash" : "~0.1.1",
-        "node-uuid": "*"
+        "connect-roles": "^3.1.1",
+        "node-uuid": "*",
+        "underscore": "*"
+
 	},
 	"devDependencies": {
 		"chai": "^2.1.2",

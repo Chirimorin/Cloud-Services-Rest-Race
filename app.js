@@ -18,6 +18,7 @@ var configDB = require('./config/database.js');
 mongoose.connect(configDB.url); // connect to our database
 
 require('./config/passport')(passport); // pass passport for configuration
+var roles = require('./config/connectroles')(); // Connect roles configuration
 
 function handleError(req, res, statusCode, message){
     console.log();
@@ -31,7 +32,7 @@ function handleError(req, res, statusCode, message){
 };
 
 var routes = require('./routes/index')(passport);
-var users = require('./routes/users')(mongoose, passport);
+var users = require('./routes/users')(mongoose, passport, roles, handleError);
 var races = require('./routes/races')(mongoose, handleError);
 var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
