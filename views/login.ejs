@@ -6,14 +6,14 @@
 
     <div class="col-sm-6 col-sm-offset-3">
 
-        <h1><span class="fa fa-sign-in"></span> Registreren</h1>
+        <h1><span class="fa fa-sign-in"></span> Login</h1>
 
         <% if (message) { %>
         <p><%= message %></p>
         <% } %>
 
         <!-- LOGIN FORM -->
-        <form action="/signup" method="post">
+        <form action="/login" method="post">
             <div class="form-group">
                 <label>E-mail adres</label>
                 <input type="text" class="form-control" name="email">
@@ -23,12 +23,12 @@
                 <input type="password" class="form-control" name="password">
             </div>
 
-            <button type="submit" class="btn btn-warning btn-lg">Registreren</button>
+            <button type="submit" class="btn btn-warning btn-lg">Login</button>
         </form>
 
         <hr>
 
-        <p>Heb je al een account? <a href="/login">Log in</a></p>
+        <p>Nog geen account? <a href="/signup">Registreren</a></p>
         <p>Of ga naar <a href="/">home</a>.</p>
 
     </div>

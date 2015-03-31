@@ -20,7 +20,7 @@ function getUsers(req, res, next) {
 
 function setNickname(req,res,next) {
     var user = req.user;
-    user.nickname = req.body.nickname;
+    user.nickname = (req.body.nickname != "" ? req.body.nickname : null);
 
     user.save(function(err, user){
         if(err){ return handleError(req, res, 500, err); }

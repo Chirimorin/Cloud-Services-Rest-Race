@@ -6,55 +6,74 @@ function getHome(req,res,next) {
 };
 
 function getLogin(req,res,next) {
-    res.send('login page');
+    if (req.accepts('text/html'))
+        return res.render('login', { message: req.flash('loginMessage') });
+    else
+        return res.json({ message: req.flash('loginMessage') });
 }
 
 function postLogin(req,res,next) {
     _passport.authenticate('local-login', function(err, user, info) {
         if (err) { return next(err); }
-        if (!user) { return res.send({ 'authenticated': false, 'error': "Incorrect username or password"}); }
+        if (!user) { return res.redirect('/login'); }
         req.logIn(user, function(err) {
             if (err) { return next(err); }
-            if (req.accepts('application/json'))
-                return res.json(user);
+            if (req.accepts('text/html'))
+                return res.redirect('/profile');
             else
-                return res.send('blah');
+                return res.json(user);
         });
     })(req, res, next);
 }
 
 function getSignup(req,res,next) {
-    return res.render('registreren');
+    if (req.accepts('text/html'))
+        return res.render('registreren', { message: req.flash('signupMessage') });
+    else
+        return res.json({ message: req.flash('signupMessage') });
 }
 
 function postSignup(req,res,next) {
     _passport.authenticate('local-signup', function(err, user, info) {
         if (err) { return next(err); }
-        if (!user) { return res.send({ 'authenticated': false, 'error': "Could not sign up"}); }
+        if (!user) { return res.redirect('/signup'); }
         req.logIn(user, function(err) {
             if (err) { return next(err); }
-            if (req.accepts('application/json'))
-                return res.json(user);
+            if (req.accepts('text/html'))
+                return res.redirect('/profile');
             else
-                return res.send('blah');
+                return res.json(user);
         });
     })(req, res, next);
 }
 
-function logout(res,req,next){
-    var user = req.user;
-    user.authKey = null;
-
-    // save the user
-    user.save(function(err) {
-        if (err)
-            throw err;
-    });
-
-    res.json(user);
+function getProfile(req,res,next) {
+    if (req.user == null)
+        return res.redirect('/login');
+    else
+        return res.render('profile', { user: req.user });
 }
 
-function unauthorized(res,req,next){
+function logout(req,res,next){
+    if (req.user != null) {
+        // Remove the authKey from te user
+        var user = req.user;
+        user.authKey = null;
+
+        // save the user
+        user.save(function (err) {
+            if (err)
+                throw err;
+        });
+
+        // Log the user out using passport
+        req.logout();
+    }
+
+    return res.redirect('/');
+}
+
+function unauthorized(req,res,next){
     res.status(401);
     res.json({ message: "Unauthorized" });
 }
@@ -76,9 +95,12 @@ module.exports = function(passport, errCallback) {
         .get(getSignup)
         .post(postSignup);
 
+    router.route('/profile')
+        .get(getProfile);
+
     router.route('/logout')
-        .get(passport.authenticate('authKey', { failureRedirect: '/' }), logout)
-        .post(passport.authenticate('authKey', { failureRedirect: '/' }), logout);
+        .get(logout)
+        .post(logout);
 
     router.route('/unauthorized')
         .get(unauthorized)
