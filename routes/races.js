@@ -2,6 +2,7 @@ var passport = require('passport');
 var express = require('express');
 var router = express.Router();
 var Race;
+var Location;
 var handleError;
 
 // Get all races
@@ -34,7 +35,8 @@ function addRace(req, res){
 		startTime: req.body.startTime,
 		private: req.body.private
 	});
-	typeof req.body.endTime != "undefined" ? race["endTime"] = req.body.endTime : race["endTime"] = null; 
+	race.owners.push(req.user._id);
+	typeof req.body.endTime != "undefined" ? race["endTime"] = req.body.endTime : race["endTime"] = null;
 	
 	race.save(function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
@@ -218,6 +220,22 @@ function removeParticipant(req, res){
 
 // Add location to a race
 function addLocation(req, res){
+	
+	var location = new Location({
+		name: req.body.location.name,
+        lat: 1, // Moet nog !!
+        long: 1, // Moet nog !!
+        distance: req.body.location.distance
+	});
+	typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
+	
+	location.save(function(err, location){
+		if(err){ return handleError(req, res, 500, err); }
+		else {
+			res.status(201);
+		}
+	});
+	
 	Race.findById(req.params.id, function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
@@ -231,7 +249,7 @@ function addLocation(req, res){
 			}
 			else {
 				if (race.locations.indexOf(req.params.idLocation) == -1){					
-					race.locations.push({orderPosition: req.body.orderPosition, location: req.body.location});
+					race.locations.push({orderPosition: req.body.orderPosition, location: location._id});
 					race.save(function (err, race) {
 						if(err){ return handleError(req, res, 500, err); }
 					});
@@ -265,15 +283,13 @@ function removeLocation(req, res){
 					}
 				}
 				race.save(function (err, race) {
-						if(err){ return handleError(req, res, 500, err); }
-					});
+					if(err){ return handleError(req, res, 500, err); }
+				});
 				
-				/*if (race.locations.indexOf(req.params.idLocation) != -1){
-					race.locations.splice(race.locations.indexOf(req.params.idLocation), 1);
-					race.save(function (err, race) {
-						if(err){ return handleError(req, res, 500, err); }
-					});
-				}*/
+				Location.findByIdAndRemove(req.params.idLocation, function(err, location){ 
+					if(err){ return handleError(req, res, 500, err); }			
+				});
+				
 				res.status(200);
 				res.json(race);
 			}	
@@ -318,6 +334,7 @@ router.route('/:id/location/:lat/:long')
 // Export
 module.exports = function (mongoose, errCallback, roles){
 	Race = mongoose.model('Race');
+	Location = mongoose.model('Location');
 	handleError = errCallback;
 	return router;
 };
