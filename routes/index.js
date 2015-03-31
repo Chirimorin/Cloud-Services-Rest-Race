@@ -1,73 +1,88 @@
 var express = require('express');
+var _passport;
 
-module.exports = function(passport) {
+function getHome(req,res,next) {
+    res.render('index', {title: 'Express'});
+};
 
-    var router = express.Router();
+function getLogin(req,res,next) {
+    res.send('login page');
+}
 
-    /* GET home page. */
-    router.get('/', function (req, res, next) {
-        res.render('index', {title: 'Express'});
-    });
-
-    router.post('/login', function(req, res, next) {
-        passport.authenticate('local-login', function(err, user, info) {
+function postLogin(req,res,next) {
+    _passport.authenticate('local-login', function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { return res.send({ 'authenticated': false, 'error': "Incorrect username or password"}); }
+        req.logIn(user, function(err) {
             if (err) { return next(err); }
-            if (!user) { return res.send({ 'authenticated': false, 'error': "Incorrect username or password"}); }
-            req.logIn(user, function(err) {
-                if (err) { return next(err); }
-                return res.send(user);
-            });
-        })(req, res, next);
-    });
+            if (req.accepts('application/json'))
+                return res.json(user);
+            else
+                return res.send('blah');
+        });
+    })(req, res, next);
+}
 
-    router.post('/signup', function(req, res, next) {
-        passport.authenticate('local-signup', function(err, user, info) {
+function getSignup(req,res,next) {
+    return res.render('registreren');
+}
+
+function postSignup(req,res,next) {
+    _passport.authenticate('local-signup', function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { return res.send({ 'authenticated': false, 'error': "Could not sign up"}); }
+        req.logIn(user, function(err) {
             if (err) { return next(err); }
-            if (!user) { return res.send({ 'authenticated': false, 'error': "Could not sign up"}); }
-            req.logIn(user, function(err) {
-                if (err) { return next(err); }
-                return res.send(user);
-            });
-        })(req, res, next);
+            if (req.accepts('application/json'))
+                return res.json(user);
+            else
+                return res.send('blah');
+        });
+    })(req, res, next);
+}
+
+function logout(res,req,next){
+    var user = req.user;
+    user.authKey = null;
+
+    // save the user
+    user.save(function(err) {
+        if (err)
+            throw err;
     });
 
-    // Standaard auth, bij elke request
-    router.post('/auth',passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),
-        function (req,res,next) {
-            // Hier de request afhandelen.
-            res.json({ message: "Authenticated!" });
-        }
-    );
+    res.json(user);
+}
 
-    router.get('/auth',passport.authenticate('authKey', { failureRedirect: '/unauthorized' }),
-        function (req,res,next) {
-            res.json({ message: "Authenticated!" });
-        }
-    );
+function unauthorized(res,req,next){
+    res.status(401);
+    res.json({ message: "Unauthorized" });
+}
 
-    router.get('/login', function (req,res,next) {
-        res.send('login page');
-    });
+module.exports = function(passport, errCallback) {
+    _passport = passport;
+    var router = express();
 
-    router.get('/logout', passport.authenticate('authKey', { failureRedirect: '/' }),
-        function (req,res,next) {
-            var user = req.user;
-            user.authKey = null;
+    handleError = errCallback;
 
-            // save the user
-            user.save(function(err) {
-                if (err)
-                    throw err;
-            });
+    router.route('/')
+        .get(getHome);
 
-            res.json(user);
-        }
-    );
+    router.route('/login')
+        .get(getLogin)
+        .post(postLogin);
 
-    router.get('/unauthorized', function(req,res,next) {
-        res.status(401);
-        res.json({ message: "Unauthorized" });
-    });
+    router.route('/signup')
+        .get(getSignup)
+        .post(postSignup);
+
+    router.route('/logout')
+        .get(passport.authenticate('authKey', { failureRedirect: '/' }), logout)
+        .post(passport.authenticate('authKey', { failureRedirect: '/' }), logout);
+
+    router.route('/unauthorized')
+        .get(unauthorized)
+        .post(unauthorized);
 
     return router;
 };;

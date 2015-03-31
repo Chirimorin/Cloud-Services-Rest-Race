@@ -47,7 +47,7 @@ function addUserRole(req,res,next) {
         else {
             if (!user) {
                 res.status(404);
-                res.json({ status: 404, message: "User not found" });
+                res.json({ status: 404, message: "Gebruiker niet gevonden." });
             } else {
                 if (user.roles.indexOf(req.body.role) == -1) {
                     user.roles.push(req.body.role);
@@ -70,7 +70,7 @@ function deleteUserRole(req,res,next) {
         else {
             if (!user) {
                 res.status(404);
-                res.json({ status: 404, message: "User not found" });
+                res.json({ status: 404, message: "Gebruiker niet gevonden." });
             } else {
                 var roleIndex =  user.roles.indexOf(req.body.role)
                 if (roleIndex != -1) {
