@@ -1,23 +1,29 @@
 var express = require('express');
 var _passport;
 
-function getHome(req,res,next) {
+function getHome(req, res, next) {
     res.render('index', {title: 'Express'});
 };
 
-function getLogin(req,res,next) {
+function getLogin(req, res, next) {
     if (req.accepts('text/html'))
-        return res.render('login', { message: req.flash('loginMessage') });
+        return res.render('login', {message: req.flash('loginMessage')});
     else
-        return res.json({ message: req.flash('loginMessage') });
+        return res.json({message: req.flash('loginMessage')});
 }
 
-function postLogin(req,res,next) {
-    _passport.authenticate('local-login', function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return res.redirect('/login'); }
-        req.logIn(user, function(err) {
-            if (err) { return next(err); }
+function postLogin(req, res, next) {
+    _passport.authenticate('local-login', function (err, user, info) {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return res.redirect('/login');
+        }
+        req.logIn(user, function (err) {
+            if (err) {
+                return next(err);
+            }
             if (req.accepts('text/html'))
                 return res.redirect('/profile');
             else
@@ -26,19 +32,25 @@ function postLogin(req,res,next) {
     })(req, res, next);
 }
 
-function getSignup(req,res,next) {
+function getSignup(req, res, next) {
     if (req.accepts('text/html'))
-        return res.render('registreren', { message: req.flash('signupMessage') });
+        return res.render('registreren', {message: req.flash('signupMessage')});
     else
-        return res.json({ message: req.flash('signupMessage') });
+        return res.json({message: req.flash('signupMessage')});
 }
 
-function postSignup(req,res,next) {
-    _passport.authenticate('local-signup', function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return res.redirect('/signup'); }
-        req.logIn(user, function(err) {
-            if (err) { return next(err); }
+function postSignup(req, res, next) {
+    _passport.authenticate('local-signup', function (err, user, info) {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return res.redirect('/signup');
+        }
+        req.logIn(user, function (err) {
+            if (err) {
+                return next(err);
+            }
             if (req.accepts('text/html'))
                 return res.redirect('/profile');
             else
@@ -47,14 +59,14 @@ function postSignup(req,res,next) {
     })(req, res, next);
 }
 
-function getProfile(req,res,next) {
+function getProfile(req, res, next) {
     if (req.user == null)
         return res.redirect('/login');
     else
-        return res.render('profile', { user: req.user });
+        return res.render('profile', {user: req.user});
 }
 
-function logout(req,res,next){
+function logout(req, res, next) {
     if (req.user != null) {
         // Remove the authKey from te user
         var user = req.user;
@@ -73,12 +85,12 @@ function logout(req,res,next){
     return res.redirect('/');
 }
 
-function unauthorized(req,res,next){
+function unauthorized(req, res, next) {
     res.status(401);
-    res.json({ message: "Unauthorized" });
+    res.json({message: "Unauthorized"});
 }
 
-module.exports = function(passport, errCallback) {
+module.exports = function (passport, errCallback) {
     _passport = passport;
     var router = express();
 
@@ -107,6 +119,7 @@ module.exports = function(passport, errCallback) {
         .post(unauthorized);
 
     return router;
-};;
+};
+;
 
 //module.exports = router;
