@@ -155,11 +155,23 @@ function removeOwner(req, res){
 
 // Add participant to a race
 function addParticipant(req, res){
-	Race.findByIdAndUpdate(req.params.id, {$push:{participants:req.user._id}}, {safe: true, upsert: true}, function(err, race){
+	Race.findById(req.params.id, function(err, race){
 		if(err){ return handleError(req, res, 500, err); }
 		else {
-			res.status(200);
-			res.json(race);
+			if (!race) {
+				res.status(404);
+				res.json({status:404, message:"Race niet gevonden"});
+			}
+			else {
+				if (race.participants.indexOf(req.user._id) == -1){
+					race.participants.push(req.user._id);
+					race.save(function (err, race) {
+						if(err){ return handleError(req, res, 500, err); }
+					});
+				}
+				res.status(200);
+				res.json(race);				
+			}	
 		}
 	});
 }
@@ -245,12 +257,23 @@ function removeLocation(req, res){
 				res.json({status:403, message:"Forbidden"});
 			}
 			else {
-				if (race.locations.indexOf(req.params.idLocations) != -1){
-					race.locations.splice(race.owners.indexOf(req.params.idLocation), 1);
+				
+				for (var i = 0; i < race.locations.length; i++) {
+					if (race.locations[i]._id == req.params.idLocation) {
+						race.locations[i].remove();
+						break;
+					}
+				}
+				race.save(function (err, race) {
+						if(err){ return handleError(req, res, 500, err); }
+					});
+				
+				/*if (race.locations.indexOf(req.params.idLocation) != -1){
+					race.locations.splice(race.locations.indexOf(req.params.idLocation), 1);
 					race.save(function (err, race) {
 						if(err){ return handleError(req, res, 500, err); }
 					});
-				}
+				}*/
 				res.status(200);
 				res.json(race);
 			}	
