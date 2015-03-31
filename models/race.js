@@ -27,6 +27,20 @@ function init(mongoose){
         private: { type: Boolean, required: true }
 	});
 	
+	raceSchema.path('owners').validate(function(val){
+		return val.length > 0;
+	}, 'Er moet minstens 1 owner zijn.');
+	
+	raceSchema.path('endTime').validate(function(val){
+		if (val) { return val > new Date(); }
+		return true;
+	}, 'Eindtijd kan niet vroeger dan nu zijn.');
+	
+	raceSchema.path('endTime').validate(function(val){
+		if (val) { return val > this.startTime; }
+		return true;
+	}, 'Eindtijd kan niet voor de starttijd zijn.');
+	
 	mongoose.model('Race', raceSchema);
 }
 
