@@ -13,9 +13,9 @@
             <strong>Eigenaren:</strong>
             <% for (i = 0; i < race.owners.length; i++) {
                 var owner = race.owners[i]; %>
-            <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %>
-            <% if (i + 1 < race.owners.length) { %>
-                ,
+            <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %><%
+            if (i + 1 < race.owners.length) {
+            %>,
             <% }
             }%>
             <h3><span class="fa fa-user"></span> Deelnemers</h3>
