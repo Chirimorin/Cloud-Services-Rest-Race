@@ -7,38 +7,49 @@ var handleError;
 
 // Get all races
 function getAllRaces(req, res) {
-    var user = req.user;
 
-    var type = req.query.type;
-    var page = (req.query.page ? req.query.page : 1);
-    var pageSize = (req.query.pageSize ? req.query.pageSize : 10);
+	if (req.accepts('text/html')) {
+		return res.render('raceAanmaken');
+	}
+	else {
 
-    console.log("Get races for user " + user._id);
+		var user = req.user;
+		var type = req.query.type;
+		var page = (req.query.page ? req.query.page : 1);
+		var pageSize = (req.query.pageSize ? req.query.pageSize : 10);
 
-    var query;
-    if (type == "owner") {
-        query = { owners: user._id };
-    } else if (type == "participating") {
-        query = { participants: user._id };
-    } else {
-        query = { public : true };
-    }
+		var query;
+		if (type == "owner") {
+			query = { owners: user._id };
+		} else if (type == "participant") {
+			query = { participants: user._id };
+		} else {
+			query = { private : false };
+		}
 
-    Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
-        if (err) {
-            return handleError(req,res,500,err);
-        }
-        else {
-            res.status(200);
-            res.json(races);
-        }
-    })
+		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize})
+            .populate('owners')
+            .populate('participants')
+            .exec(function(err, races) {
+			if (err) {
+				return handleError(req,res,500,err);
+			}
+			else {
+				res.status(200);
+				return res.json(races);
+			}
+		});
+
+	}
 
 }
 
 // Get race by ID
 function getRaceByID(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate("owners")
+        .populate("participants")
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -69,7 +80,13 @@ function addRace(req, res) {
         }
         else {
             res.status(201);
-            res.json(race);
+			
+			if (req.accepts('text/html')) {
+				return res.render('profile');
+			}
+			else {
+				res.json(race);
+			}
         }
     });
 }
@@ -274,8 +291,8 @@ function addLocation(req, res) {
 
     var location = new Location({
         name: req.body.location.name,
-        lat: 1, // Moet nog !!
-        long: 1, // Moet nog !!
+        lat: req.body.location.lat,
+        long: req.body.location.long,
         distance: req.body.location.distance
     });
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
@@ -360,6 +377,11 @@ function removeLocation(req, res) {
     });
 }
 
+// Geeft pagina terug om locaties aan een race toe te voegen
+function getLocationPage(req, res) {
+	res.render('locatiesToevoegen', {"race_id": req.params.id});
+}
+
 // Add location to users visited locations
 function addLocationToVisitedLocations(req, res) {
 
@@ -386,6 +408,7 @@ router.route('/:id/participant/idParticipant')
     .delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 
 router.route('/:id/location')
+	.get(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), getLocationPage)
     .post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocation);
 
 router.route('/:id/location/:idLocation')

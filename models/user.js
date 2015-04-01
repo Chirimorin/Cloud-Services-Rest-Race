@@ -41,7 +41,7 @@ var _ = require('underscore');
 	
 	userSchema.path('logins.local.email').validate(function (email) {
 		var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
-		return emailRegex.test(email); // Assuming email has a text attribute
+		return emailRegex.test(email);
 	}, 'E-mailadres is niet geldig.');
 
     // methods ======================
