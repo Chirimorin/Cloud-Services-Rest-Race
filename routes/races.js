@@ -24,7 +24,7 @@ function getAllRaces(req, res) {
 		} else if (type == "participating") {
 			query = { participants: user._id };
 		} else {
-			query = { public : true };
+			query = { private : false };
 		}
 
 		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
