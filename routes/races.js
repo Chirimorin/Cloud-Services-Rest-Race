@@ -7,12 +7,12 @@ var handleError;
 
 // Get all races
 function getAllRaces(req, res) {
-	
+
 	if (req.accepts('text/html')) {
 		return res.render('raceAanmaken', {"message": "test"});
 	}
 	else {
-		
+
 		var user = req.user;
 		var type = req.query.type;
 		var page = (req.query.page ? req.query.page : 1);
@@ -27,16 +27,19 @@ function getAllRaces(req, res) {
 			query = { private : false };
 		}
 
-		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
+		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize})
+            .populate('owners')
+            .populate('participants')
+            .exec(function(err, races) {
 			if (err) {
 				return handleError(req,res,500,err);
 			}
 			else {
 				res.status(200);
-				res.json(races);
+				return res.json(races);
 			}
 		});
-	
+
 	}
 
 }
