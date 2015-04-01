@@ -160,13 +160,15 @@ module.exports = function(passport) {
             passReqToCallback : true // allows us to pass back the entire request to the callback
         },
         function(req, authKey, done) {
-            if (req.user) {
-                // User is already authenticated
-                return done(null, req.user);
-            }
+
             User.findOne({ authKey: authKey }, function (err, user) {
                 if (err) { return done(err); }
-                if (!user) { return done(null, false); }
+                if (!user) {
+                    if (req.user) {
+                        return done (null, req.user);
+                    }
+                    return done(null, false);
+                }
                 return done(null, user);
             });
         }
