@@ -38,6 +38,11 @@ var _ = require('underscore');
             time: { type: Date, required: true }
         }]
 	});
+	
+	userSchema.path('logins.local.email').validate(function (email) {
+		var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+		return emailRegex.test(email); // Assuming email has a text attribute
+	}, 'E-mailadres is niet geldig.');
 
     // methods ======================
     // generating a hash
