@@ -9,7 +9,7 @@ var handleError;
 function getAllRaces(req, res) {
 
 	if (req.accepts('text/html')) {
-		return res.render('raceAanmaken', {"message": "test"});
+		return res.render('raceAanmaken');
 	}
 	else {
 
@@ -80,7 +80,13 @@ function addRace(req, res) {
         }
         else {
             res.status(201);
-            res.json(race);
+			
+			if (req.accepts('text/html')) {
+				return res.render('profile');
+			}
+			else {
+				res.json(race);
+			}
         }
     });
 }
@@ -285,8 +291,8 @@ function addLocation(req, res) {
 
     var location = new Location({
         name: req.body.location.name,
-        lat: 1, // Moet nog !!
-        long: 1, // Moet nog !!
+        lat: req.body.location.lat,
+        long: req.body.location.long,
         distance: req.body.location.distance
     });
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
@@ -371,6 +377,11 @@ function removeLocation(req, res) {
     });
 }
 
+// Geeft pagina terug om locaties aan een race toe te voegen
+function getLocationPage(req, res) {
+	res.render('locatiesToevoegen', {"race_id": req.params.id});
+}
+
 // Add location to users visited locations
 function addLocationToVisitedLocations(req, res) {
 
@@ -397,6 +408,7 @@ router.route('/:id/participant/idParticipant')
     .delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 
 router.route('/:id/location')
+	.get(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), getLocationPage)
     .post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocation);
 
 router.route('/:id/location/:idLocation')

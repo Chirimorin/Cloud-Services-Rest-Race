@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<% include ./shared/head %>
+<body>
+<div class="container">
+
+    <div class="col-sm-6 col-sm-offset-3">
+
+        <h1><span class="fa fa-flag-checkered"></span> Locaties toevoegen</h1>
+
+		<br />
+		
+        <!-- LOCATIES TOEVOEGEN FORM -->
+		
+		<div class="form-group">
+			<label>Naam</label>
+			<input type="text" class="form-control" id="naam">
+		</div>
+		
+		<div class="form-group">
+			<label>Latitude</label>
+			<textarea class="form-control" id="omschrijving"></textarea>
+		</div>
+		
+		<div class="form-group">
+			<label>Latitude</label>
+			<input type="text" class="form-control" id="lat">
+		</div>
+		
+		<div class="form-group">
+			<label>Longitude</label>
+			<input type="text" class="form-control" id="long">
+		</div>
+		
+		<div class="form-group">
+			<label>Afstand</label>
+			<input type="text" class="form-control" id="afstand">
+		</div>
+
+		<button type="submit" id="btn_locatieToevoegen" class="btn btn-success btn-lg">Locatie toevoegen</button>
+		
+		<br /><br />
+		<button id="btn_klaar" class="btn btn-warning btn-lg">Klaar</button>
+ 
+    </div>
+
+	<script type="text/javascript">
+        var race_id = "<%= race_id %>";
+    </script>
+	<script type="text/javascript" src="js/locatieToevoegen.js"></script>
+	
+</div>
+</body>
+</html>
