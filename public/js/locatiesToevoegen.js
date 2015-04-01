@@ -10,10 +10,14 @@ $(document).ready(function() {
 			},
 			dataType: "json",
 			data: {
-				"name": $("#naam").val(),
-				"lat": $("#lat").val(),
-				"long": $("#long").val(),
-				"distance": $("#afstand").val()
+				"orderPosition": 1,
+				"location": {
+					"name": $("#naam").val(),
+					"description": $("#omschrijving").val(),
+					"lat": $("#lat").val(),
+					"long": $("#long").val(),
+					"distance": $("#afstand").val()	
+				}	
 			},
 			success: function(data) {
 				
