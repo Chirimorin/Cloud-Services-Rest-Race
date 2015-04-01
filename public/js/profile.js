@@ -64,8 +64,8 @@ function getRaces() {
             }
         }
         else {
+            $("#racesList").html("<li class=\"list-group-item\">Geen races gevonden.</li>");
             lastPage(true);
-            alert("Geen races meer gevonden.");
         }
     });
 
@@ -109,6 +109,23 @@ function firstPage(value) {
     }
 }
 
+function switchPage(pageName) {
+    if (pageName == "owner" || pageName == "participant" || pageName == "public") {
+        type = pageName;
+        currentPage = 1;
+
+        $("#ownerRaces").parent().removeClass("active");
+        $("#participantRaces").parent().removeClass("active");
+        $("#publicRaces").parent().removeClass("active");
+
+        $("#" + pageName + "Races").parent().addClass("active");
+
+        $("#racesList").html("<li class=\"list-group-item\">Races laden...</li>");
+
+        getRaces();
+    }
+}
+
 $(document).ready(function() {
     currentPage = 1;
     type = "owner"
@@ -123,4 +140,7 @@ $(document).ready(function() {
     $("#prevPage").click(previousPage);
     $("#nextPage").click(nextPage);
     $("#itemsPerPage").change(itemsPerPageChanged);
+    $("#ownerRaces").click(function() { switchPage("owner"); });
+    $("#participantRaces").click(function() { switchPage("participant"); });
+    $("#publicRaces").click(function() { switchPage("public"); });
 });
