@@ -7,32 +7,37 @@ var handleError;
 
 // Get all races
 function getAllRaces(req, res) {
-    var user = req.user;
+	
+	if (req.accepts('text/html')) {
+		return res.render('raceAanmaken', {"message": "test"});
+	}
+	else {
+		
+		var user = req.user;
+		var type = req.query.type;
+		var page = (req.query.page ? req.query.page : 1);
+		var pageSize = (req.query.pageSize ? req.query.pageSize : 10);
 
-    var type = req.query.type;
-    var page = (req.query.page ? req.query.page : 1);
-    var pageSize = (req.query.pageSize ? req.query.pageSize : 10);
+		var query;
+		if (type == "owner") {
+			query = { owners: user._id };
+		} else if (type == "participating") {
+			query = { participants: user._id };
+		} else {
+			query = { public : true };
+		}
 
-    console.log("Get races for user " + user._id);
-
-    var query;
-    if (type == "owner") {
-        query = { owners: user._id };
-    } else if (type == "participating") {
-        query = { participants: user._id };
-    } else {
-        query = { public : true };
-    }
-
-    Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
-        if (err) {
-            return handleError(req,res,500,err);
-        }
-        else {
-            res.status(200);
-            res.json(races);
-        }
-    })
+		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
+			if (err) {
+				return handleError(req,res,500,err);
+			}
+			else {
+				res.status(200);
+				res.json(races);
+			}
+		});
+	
+	}
 
 }
 
