@@ -285,8 +285,8 @@ function addLocation(req, res) {
 
     var location = new Location({
         name: req.body.location.name,
-        lat: 1, // Moet nog !!
-        long: 1, // Moet nog !!
+        lat: req.body.location.lat,
+        long: req.body.location.long,
         distance: req.body.location.distance
     });
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
