@@ -67,7 +67,7 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 				"hasSpecificOrder": hasSpecificOrder
 			},
 			success: function(data) {
-				//window.location = "?apikey=a";
+				window.location = "/races/" + data._id + "/location?apikey=a"
 			}
 		});	
 		

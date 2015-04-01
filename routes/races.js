@@ -371,6 +371,11 @@ function removeLocation(req, res) {
     });
 }
 
+// Geeft pagina terug om locaties aan een race toe te voegen
+function getLocationPage(req, res) {
+	res.render('locatiesToevoegen', {"race_id": req.params.id});
+}
+
 // Add location to users visited locations
 function addLocationToVisitedLocations(req, res) {
 
@@ -397,6 +402,7 @@ router.route('/:id/participant/idParticipant')
     .delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 
 router.route('/:id/location')
+	.get(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), getLocationPage)
     .post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocation);
 
 router.route('/:id/location/:idLocation')

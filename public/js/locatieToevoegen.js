@@ -4,7 +4,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			type: "POST",
-			url: "/races/id/location?apikey=a",
+			url: "/races/" + race_id + "/location?apikey=a",
 			headers: {
 				Accept: "application/json"
 			},
