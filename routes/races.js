@@ -21,7 +21,7 @@ function getAllRaces(req, res) {
 		var query;
 		if (type == "owner") {
 			query = { owners: user._id };
-		} else if (type == "participating") {
+		} else if (type == "participant") {
 			query = { participants: user._id };
 		} else {
 			query = { private : false };
