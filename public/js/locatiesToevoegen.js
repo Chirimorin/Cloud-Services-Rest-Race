@@ -26,4 +26,8 @@ $(document).ready(function() {
 		
 	});
 	
+	$("#btn_klaar").on("click", function() {
+		window.location = "profile?apikey=a";
+	});
+	
 });
