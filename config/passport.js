@@ -96,8 +96,18 @@ module.exports = function(passport) {
 
                         // save the user
                         newUser.save(function(err) {
-                            if (err)
-                                throw err;
+                            if (err) {
+                                console.log(err);
+                                if (err.errors['logins.local.email']) {
+                                    return done(null, false, req.flash('signupMessage', String(err.errors['logins.local.email'])));
+                                }
+                                if (err.errors['logins.local.password']) {
+                                    return done(null, false, req.flash('signupMessage', String(err.errors['logins.local.password'])));
+                                }
+                                return done(null, false, req.flash('signupMessage', 'Er is iets niet goed gegaan bij het registreren. Probeer het later nog eens.'));
+
+                            }
+
                             return done(null, newUser);
                         });
                     }
