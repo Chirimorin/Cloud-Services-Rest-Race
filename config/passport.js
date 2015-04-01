@@ -97,7 +97,6 @@ module.exports = function(passport) {
                         // save the user
                         newUser.save(function(err) {
                             if (err) {
-                                console.log(err);
                                 if (err.errors['logins.local.email']) {
                                     return done(null, false, req.flash('signupMessage', String(err.errors['logins.local.email'])));
                                 }
