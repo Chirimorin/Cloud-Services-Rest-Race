@@ -19,8 +19,6 @@ function updateNickname() {
 }
 
 function getRaces() {
-    console.log("Getting races page " + currentPage);
-
     $.ajax({
         url: "/races?apikey=" + apiKey +
             "&type=" + type +
@@ -38,7 +36,7 @@ function getRaces() {
                     endTime = " - " + new Date(race.endTime).toLocaleDateString();
                 }
 
-                raceList += "<li class=\"list-group-item clickable\">" +
+                raceList += "<li class=\"list-group-item clickable\" onclick='openRace(\"" + race._id + "\");'>" +
                     "<span class=\"badge\">" + race.participants.length + " deelnemers" + "</span>" +
                     "<strong>" + race.name + "</strong><br/>" +
                     "<span class=\"tijd\">" + startTime + endTime + "</span>" +
@@ -58,7 +56,6 @@ function getRaces() {
                     "&page=" + (currentPage + 1),
                     method: "GET"
                 }).success(function(data) {
-                    console.log(data);
                     lastPage(data.length == 0)
                 });
             }
@@ -124,6 +121,10 @@ function switchPage(pageName) {
 
         getRaces();
     }
+}
+
+function openRace(id) {
+    window.location = "/races/" + id + "?apikey=a";
 }
 
 $(document).ready(function() {

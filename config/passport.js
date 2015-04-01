@@ -147,8 +147,14 @@ module.exports = function(passport) {
 
         }));
 
-    passport.use('authKey', new LocalAPIKeyStrategy(
-        function(authKey, done) {
+    passport.use('authKey', new LocalAPIKeyStrategy({
+            passReqToCallback : true // allows us to pass back the entire request to the callback
+        },
+        function(req, authKey, done) {
+            if (req.user) {
+                // User is already authenticated
+                return done(null, req.user);
+            }
             User.findOne({ authKey: authKey }, function (err, user) {
                 if (err) { return done(err); }
                 if (!user) { return done(null, false); }

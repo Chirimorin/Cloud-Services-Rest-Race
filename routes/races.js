@@ -44,7 +44,10 @@ function getRaceByID(req, res) {
         }
         else {
             res.status(200);
-            res.json(race);
+            if (req.accepts('text/html'))
+                return res.render('race', { "race": race });
+            else
+                return res.json(race);
         }
     });
 }
