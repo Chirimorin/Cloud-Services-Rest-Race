@@ -30,6 +30,49 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 		$(".minuten").append("<option>" + minuten + "</option>");
 	}
 	
+	$("#btn_raceAanmaken").on("click", function() {
+		
+		var isPrivate;
+		if ($("input:radio[name='private']:checked").val() == "ja") {
+			isPrivate = true;
+		}
+		else {
+			isPrivate = false;
+		}
+
+		var name = $("#naam").val();
+		var startTime = $("#jaar_start").val() + "-" + $("#maand_start").val() + "-" + $("#dag_start").val() + " " + $("#uur_start").val() + ":" + $("#minuten_start").val();
+		var endTime = $("#jaar_eind").val() + "-" + $("#maand_eind").val() + "-" + $("#dag_eind").val() + " " + $("#uur_eind").val() + ":" + $("#minuten_eind").val();
+		var hasSpecificOrder;
+		
+		if ($("input:radio[name='volgorde']:checked").val() == "ja") {
+			hasSpecificOrder = true;
+		}
+		else {
+			hasSpecificOrder = false;
+		}		
+
+		$.ajax({
+			type: "POST",
+			url: "/races?apikey=a",
+			headers: {
+				Accept: "application/json"
+			},
+			dataType: "json",
+			data: {
+				"private": isPrivate,
+				"name": name,
+				"startTime": startTime,
+				"endTime": endTime,
+				"hasSpecificOrder": hasSpecificOrder
+			},
+			success: function(data) {
+				window.location = "/profile?apikey=a";
+			}
+		});	
+		
+	});
+	
 });
 
 
