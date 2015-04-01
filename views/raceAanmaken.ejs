@@ -8,33 +8,71 @@
 
         <h1><span class="fa fa-flag-checkered"></span> Race aanmaken</h1>
 
-        <% if (message) { %>
-        <p><%= message %></p>
-        <% } %>
-
-        <!-- LOGIN FORM -->
+		<br />
+		
+        <!-- RACE AANMAKEN FORM -->
         <form action="/races" method="post">
+		
+			<div class="form-group">
+                <label>Is private?</label> <br />
+				<input type="radio" name="private" value="ja"><span>Ja</span>
+				<input type="radio" name="private" value="nee"><span>Nee</span>
+            </div>
+			
             <div class="form-group">
                 <label>Naam</label>
                 <input type="text" class="form-control" name="name">
             </div>
-			<div class="form-group">
-                <label>Starttijd</label>
-                <input type="text" class="form-control datepicker" name="startTime">
-            </div>
-            <div class="form-group">
-                <label>Eindtijd</label>
-                <input type="text" class="form-control datepicker" name="endTime">
-            </div>
 			
-			<!--heeft volgorde
-			starttijd
-			eindtijd
-			prive-->
+			<div class="form-group">
+				<label>Start tijd</label> 
+				<fieldset>
+					<span>Dag</span> 
+					<select id="dag_start" name="dag_start" class="dag"/></select>
+
+					<span>Maand</span> 
+					<select id="maand_start" name="maand_start" class="maand"/></select>
+						
+					<span>Jaar</span> 
+					<select id="jaar_start"  name="jaar_start" class="jaar"/></select> 
+					
+					<span>Uur</span> 
+					<select id="uur_start"  name="uur_start" class="uur"/></select> 
+					
+					<span>Minuten</span> 
+					<select id="minuten_start"  name="minuten_start" class="minuten"/></select> 	
+				</fieldset>
+			</div>
+  
+			<div class="form-group">
+				<label>Eind tijd</label> 
+				<fieldset>
+					<span>Dag</span>
+					<select id="dag_eind" name="dag_eind" class="dag"/></select>
+
+					<span>Maand</span>
+					<select id="maand_eind" name="maand_eind" class="maand"/></select>
+						
+					<span>Jaar</span>
+					<select id="jaar_eind"  name="jaar_eind" class="jaar"/></select> 
+					
+					<span>Uur</span>
+					<select id="uur_eind"  name="uur_eind" class="uur"/></select> 
+					
+					<span>Minuten</span> 
+					<select id="minuten_eind"  name="minuten_eind" class="minuten"/></select>
+				</fieldset>
+			</div>
+			
+            <div class="form-group">
+                <label>Heeft volgorde?</label> <br />
+				<input type="radio" name="volgorde" value="ja"><span>Ja</span>
+				<input type="radio" name="volgorde" value="nee"><span>Nee</span>
+            </div>
 
             <button type="submit" class="btn btn-warning btn-lg">Race aanmaken</button>
         </form>
-
+ 
     </div>
 
 	<script type="text/javascript" src="js/raceAanmaken.js"></script>

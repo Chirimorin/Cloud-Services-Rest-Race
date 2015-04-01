@@ -9,7 +9,7 @@ var handleError;
 function getAllRaces(req, res) {
 	
 	if (req.accepts('text/html')) {
-		return res.render('raceAanmaken', {"message": "test"});
+		return res.render('raceAanmaken');
 	}
 	else {
 		
@@ -74,7 +74,13 @@ function addRace(req, res) {
         }
         else {
             res.status(201);
-            res.json(race);
+			
+			if (req.accepts('text/html')) {
+				return res.render('profile');
+			}
+			else {
+				res.json(race);
+			}
         }
     });
 }
