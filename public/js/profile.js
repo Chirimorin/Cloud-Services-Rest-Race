@@ -24,7 +24,8 @@ function getRaces() {
             "&type=" + type +
             "&pageSize=" + itemsPerPage +
             "&page=" + currentPage,
-        method: "GET"
+        method: "GET",
+        headers: { Accept: "application/json" }
     }).success(function(data) {
         if (data.length != 0) {
             var raceList = "";
@@ -54,8 +55,9 @@ function getRaces() {
                     "&type=" + type +
                     "&pageSize=" + itemsPerPage +
                     "&page=" + (currentPage + 1),
-                    method: "GET"
-                }).success(function(data) {
+                    method: "GET",
+                    headers: { Accept: "application/json" }
+                    }).success(function(data) {
                     lastPage(data.length == 0)
                 });
             }

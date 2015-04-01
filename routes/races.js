@@ -21,10 +21,10 @@ function getAllRaces(req, res) {
 		var query;
 		if (type == "owner") {
 			query = { owners: user._id };
-		} else if (type == "participating") {
+		} else if (type == "participant") {
 			query = { participants: user._id };
 		} else {
-			query = { public : true };
+			query = { private : false };
 		}
 
 		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize}, function(err, races) {
