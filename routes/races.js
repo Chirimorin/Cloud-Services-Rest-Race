@@ -288,7 +288,7 @@ function removeParticipant(req, res) {
 
 // Add location to a race
 function addLocation(req, res) {
-
+    console.log("1");
     var location = new Location({
         name: req.body.location.name,
         lat: req.body.location.lat,
@@ -296,7 +296,7 @@ function addLocation(req, res) {
         distance: req.body.location.distance
     });
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
-
+    console.log("2");
     location.save(function (err, location) {
         if (err) {
             return handleError(req, res, 500, err);
@@ -305,7 +305,7 @@ function addLocation(req, res) {
             res.status(201);
         }
     });
-
+    console.log("3");
     Race.findById(req.params.id, function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
@@ -384,7 +384,72 @@ function getLocationPage(req, res) {
 
 // Add location to users visited locations
 function addLocationToVisitedLocations(req, res) {
+    var lat = parseFloat(req.params.lat);
+    var long = parseFloat(req.params.long);
 
+    if (lat == NaN || long == NaN)
+    {
+        res.status = 400;
+        res.json({ status: 400, message: "Bad Request"});
+    }
+
+    Race.findById(req.params.id)
+        .populate("locations.location")
+        .exec(function (err, race) {
+            if (err) {
+                return handleError(req, res, 500, err);
+            }
+            else {
+                if (race.participants.indexOf(req.user._id) == -1) {
+                    res.status(403);
+                    return res.json({ status: 403, message: "Je doet niet mee aan deze race"})
+                }
+
+                var checkedIn = false;
+
+                for (i = 0; i < race.locations.length; i++) {
+                    var location = race.locations[i].location;
+
+                    var distance = getDistanceFromLatLonInM(lat, long, location.lat, location.long);
+
+                    if (distance < location.distance) {
+                        var exists = false;
+                        for (j = 0; j < req.user.visitedLocations.length && !exists; j++) {
+                            if (req.user.visitedLocations[i].location == location._id) {
+                                exists = true;
+                            }
+                        }
+
+                        if (!exists) {
+                            checkedIn = true;
+                            req.user.visitedLocations.push({location: location._id, time: new Date()});
+                            req.user.save();
+                        }
+                    }
+                }
+                res.status(200);
+
+                return res.json( { checkedIn: checkedIn });
+            }
+        });
+}
+
+function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(lat2-lat1);  // deg2rad below
+    var dLon = deg2rad(lon2-lon1);
+    var a =
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2)
+        ;
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c; // Distance in km
+    return (d * 1000);
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180)
 }
 
 router.route('/')
@@ -404,7 +469,7 @@ router.route('/:id/participant')
     .put(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addParticipant)
     .delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 
-router.route('/:id/participant/idParticipant')
+router.route('/:id/participant/:idParticipant')
     .delete(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), removeParticipant);
 
 router.route('/:id/location')
