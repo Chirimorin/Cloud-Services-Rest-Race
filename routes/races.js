@@ -429,7 +429,7 @@ function addLocationToVisitedLocations(req, res) {
                 }
                 res.status(200);
 
-                return res.json( { checkedIn: checkedIn });
+                return res.json( { checkedIn: checkedIn, locations: req.user.visitedLocations });
             }
         });
 }
