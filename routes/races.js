@@ -409,10 +409,14 @@ function addLocationToVisitedLocations(req, res) {
 
                 var checkedIn = false;
 
+                console.log("Checking locations...");
+
                 for (i = 0; i < race.locations.length; i++) {
                     var location = race.locations[i].location;
 
                     var distance = getDistanceFromLatLonInM(lat, long, location.lat, location.long);
+
+                    console.log("Distance found: " + distance + " (max distance: " + location.distance + ")");
 
                     if (distance < location.distance) {
                         var exists = false;
@@ -421,6 +425,8 @@ function addLocationToVisitedLocations(req, res) {
                                 exists = true;
                             }
                         }
+
+                        console.log("Distance < max distance. Exists? " + exists);
 
                         if (!exists) {
                             checkedIn = true;
@@ -431,6 +437,7 @@ function addLocationToVisitedLocations(req, res) {
                 }
                 res.status(200);
 
+                console.log("Finished checking locations. Checked in? " + checkedIn);
                 return res.json( { checkedIn: checkedIn, locations: req.user.visitedLocations });
             }
         });
