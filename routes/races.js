@@ -30,6 +30,7 @@ function getAllRaces(req, res) {
 		Race.find(query, '', { "skip": ((page-1) * pageSize), "limit": pageSize})
             .populate('owners')
             .populate('participants')
+            .populate("locations")
             .exec(function(err, races) {
 			if (err) {
 				return handleError(req,res,500,err);
