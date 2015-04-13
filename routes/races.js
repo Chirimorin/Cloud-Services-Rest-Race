@@ -416,6 +416,7 @@ function addLocationToVisitedLocations(req, res) {
 
                     var distance = getDistanceFromLatLonInM(lat, long, location.lat, location.long);
 
+                    console.log("Checking user location (" + lat + "," + long + ") against location (" + location.lat + "," + location.long + ")");
                     console.log("Distance found: " + distance + " (max distance: " + location.distance + ")");
 
                     if (distance < location.distance) {
