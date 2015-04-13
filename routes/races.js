@@ -49,6 +49,7 @@ function getRaceByID(req, res) {
     Race.findById(req.params.id)
         .populate("owners")
         .populate("participants")
+        .populate("locations")
         .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
