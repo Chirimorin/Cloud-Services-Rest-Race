@@ -431,12 +431,18 @@ function addLocationToVisitedLocations(req, res) {
 
                         if (!exists) {
                             checkedIn = true;
-                            req.user.visitedLocations.push({location: location._id, time: new Date()});
-                            req.user.save(function (err, race) {
+
+                            User.findById(req.user._id, function (err, user) {
                                 if (err) {
                                     return handleError(req, res, 500, err);
                                 }
+                                else {
+                                    user.visitedLocations.push({location: location._id, time: new Date()});
+                                    user.save();
+                                }
                             });
+
+                            req.user.visitedLocations.push({location: location._id, time: new Date()});
                         }
                     }
                 }
