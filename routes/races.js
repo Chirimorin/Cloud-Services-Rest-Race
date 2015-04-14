@@ -2,6 +2,7 @@ var passport = require('passport');
 var express = require('express');
 var router = express.Router();
 var Race;
+var User;
 var Location;
 var handleError;
 
@@ -519,6 +520,7 @@ router.route('/:id/location/:lat/:long')
 // Export
 module.exports = function (mongoose, errCallback, roles) {
     Race = mongoose.model('Race');
+    User = mongoose.model('User');
     Location = mongoose.model('Location');
     handleError = errCallback;
     return router;
