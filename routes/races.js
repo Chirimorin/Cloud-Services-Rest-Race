@@ -438,13 +438,14 @@ function addLocationToVisitedLocations(req, res) {
                                 if (!exists) {
                                     checkedIn = true;
                                     user.visitedLocations.push({location: location._id, time: new Date()});
-
                                 }
                             }
                         }
-
+                        console.log("Saving user...");
                         user.save(function (err, user) {
-                            if (!err) {
+                            if (err) {
+                                return handleError(req, res, 500, err);
+                            } else {
                                 return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
                             }
                         });
