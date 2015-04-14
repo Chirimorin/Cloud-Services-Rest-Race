@@ -405,58 +405,51 @@ function addLocationToVisitedLocations(req, res) {
             else {
                 if (race.participants.indexOf(req.user._id) == -1) {
                     res.status(403);
-                    return res.json({ status: 403, message: "Je doet niet mee aan deze race"})
+                    return res.json({status: 403, message: "Je doet niet mee aan deze race"})
                 }
 
                 var checkedIn = false;
 
                 console.log("Checking locations...");
 
-                for (i = 0; i < race.locations.length; i++) {
-                    var location = race.locations[i].location;
+                User.findById(req.user._id, function (err, user) {
+                    if (err) {
+                        return handleError(req, res, 500, err);
+                    }
+                    else {
+                        for (i = 0; i < race.locations.length; i++) {
+                            var location = race.locations[i].location;
 
-                    var distance = getDistanceFromLatLonInM(lat, long, location.lat, location.long);
+                            var distance = getDistanceFromLatLonInM(lat, long, location.lat, location.long);
 
-                    console.log("Checking user location (" + lat + "," + long + ") against location (" + location.lat + "," + location.long + ")");
-                    console.log("Distance found: " + distance + " (max distance: " + location.distance + ")");
+                            console.log("Checking user location (" + lat + "," + long + ") against location (" + location.lat + "," + location.long + ")");
+                            console.log("Distance found: " + distance + " (max distance: " + location.distance + ")");
 
-                    if (distance < location.distance) {
-                        var exists = false;
-                        for (j = 0; j < req.user.visitedLocations.length && !exists; j++) {
-                            if (req.user.visitedLocations[i].location == location._id) {
-                                exists = true;
+                            if (distance < location.distance) {
+                                var exists = false;
+                                for (j = 0; j < req.user.visitedLocations.length && !exists; j++) {
+                                    if (req.user.visitedLocations[i].location == location._id) {
+                                        exists = true;
+                                    }
+                                }
+
+                                console.log("Distance < max distance. Exists? " + exists);
+
+                                if (!exists) {
+                                    checkedIn = true;
+                                    user.visitedLocations.push({location: location._id, time: new Date()});
+
+                                }
                             }
                         }
 
-                        console.log("Distance < max distance. Exists? " + exists);
-
-                        if (!exists) {
-                            checkedIn = true;
-
-                            User.findById(req.user._id, function (err, user) {
-                                if (err) {
-                                    return handleError(req, res, 500, err);
-                                }
-                                else {
-                                    user.visitedLocations.push({location: location._id, time: new Date()});
-                                    user.save(function(err, user) {
-                                        if (!err) {
-                                            return res.json( { checkedIn: true, locations: req.user.visitedLocations });
-                                        }
-                                    });
-                                }
-                            });
-
-                            req.user.visitedLocations.push({location: location._id, time: new Date()});
-                        } else {
-                            return res.json( { checkedIn: false, locations: req.user.visitedLocations });
-                        }
+                        user.save(function (err, user) {
+                            if (!err) {
+                                return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
+                            }
+                        });
                     }
-                }
-                res.status(200);
-
-                console.log("Finished checking locations. Checked in? " + checkedIn);
-                return res.json( { checkedIn: false, locations: req.user.visitedLocations });
+                });
             }
         });
 }
