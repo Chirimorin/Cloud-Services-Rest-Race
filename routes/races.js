@@ -439,18 +439,24 @@ function addLocationToVisitedLocations(req, res) {
                                 }
                                 else {
                                     user.visitedLocations.push({location: location._id, time: new Date()});
-                                    user.save();
+                                    user.save(function(err, user) {
+                                        if (!err) {
+                                            return res.json( { checkedIn: true, locations: req.user.visitedLocations });
+                                        }
+                                    });
                                 }
                             });
 
                             req.user.visitedLocations.push({location: location._id, time: new Date()});
+                        } else {
+                            return res.json( { checkedIn: false, locations: req.user.visitedLocations });
                         }
                     }
                 }
                 res.status(200);
 
                 console.log("Finished checking locations. Checked in? " + checkedIn);
-                return res.json( { checkedIn: checkedIn, locations: req.user.visitedLocations });
+                return res.json( { checkedIn: false, locations: req.user.visitedLocations });
             }
         });
 }
