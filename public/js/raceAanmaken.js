@@ -52,7 +52,7 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 			hasSpecificOrder = false;
 		}		
 
-		$.ajax({
+		/*$.ajax({
 			type: "POST",
 			url: "/races?apikey=a",
 			headers: {
@@ -69,7 +69,9 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 			success: function(data) {
 				window.location = "/races/" + data._id + "/location?apikey=a"
 			}
-		});	
+		});	*/
+		
+		window.location = "/races/552e3bc29bcd4e1100ccb399/location?apikey=a"
 		
 	});
 	

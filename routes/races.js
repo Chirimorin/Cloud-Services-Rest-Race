@@ -292,6 +292,7 @@ function removeParticipant(req, res) {
 // Add location to a race
 function addLocation(req, res) {
     console.log("1");
+	console.log("body" + req.body.location);
     var location = new Location({
         name: req.body.location.name,
         lat: req.body.location.lat,

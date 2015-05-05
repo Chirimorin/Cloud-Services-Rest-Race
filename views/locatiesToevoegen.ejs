@@ -4,50 +4,62 @@
 <body>
 <div class="container">
 
-    <div class="col-sm-6 col-sm-offset-3">
+	<div class="page-header text-center">
+        <h1><span class="fa fa-map-marker"></span> Locaties toevoegen</h1>
+    </div>
 
-        <h1><span class="fa fa-flag-checkered"></span> Locaties toevoegen</h1>
+    <div class="col-sm-6">
+		<div class="well">
+		
+			<h3><span class="fa fa-map-marker"></span> Locatie toevoegen</h3>
+			
+			<!-- LOCATIES TOEVOEGEN FORM -->
+			
+			<div class="form-group">
+				<label>Naam</label>
+				<input type="text" class="form-control" id="naam">
+			</div>
+			
+			<div class="form-group">
+				<label>Omschrijving</label>
+				<textarea class="form-control" id="omschrijving"></textarea>
+			</div>
+			
+			<div class="form-group">
+				<label>Latitude</label>
+				<input type="text" class="form-control" id="lat">
+			</div>
+			
+			<div class="form-group">
+				<label>Longitude</label>
+				<input type="text" class="form-control" id="long">
+			</div>
+			
+			<div class="form-group">
+				<label>Afstand</label>
+				<input type="text" class="form-control" id="afstand">
+			</div>
 
-		<br />
-		
-        <!-- LOCATIES TOEVOEGEN FORM -->
-		
-		<div class="form-group">
-			<label>Naam</label>
-			<input type="text" class="form-control" id="naam">
+			<button type="submit" id="btn_locatieToevoegen" class="btn btn-success btn-lg">Locatie toevoegen</button>
+	 
 		</div>
+    </div>
+	
+	<div class="col-sm-6">
+		<div class="well">
 		
-		<div class="form-group">
-			<label>Latitude</label>
-			<textarea class="form-control" id="omschrijving"></textarea>
+			<h3><span class="fa fa-map-marker"></span> Locaties race</h3>
+			
+			<br /><br />
+			<button id="btn_klaar" class="btn btn-warning btn-lg">Klaar</button>
+		
 		</div>
-		
-		<div class="form-group">
-			<label>Latitude</label>
-			<input type="text" class="form-control" id="lat">
-		</div>
-		
-		<div class="form-group">
-			<label>Longitude</label>
-			<input type="text" class="form-control" id="long">
-		</div>
-		
-		<div class="form-group">
-			<label>Afstand</label>
-			<input type="text" class="form-control" id="afstand">
-		</div>
-
-		<button type="submit" id="btn_locatieToevoegen" class="btn btn-success btn-lg">Locatie toevoegen</button>
-		
-		<br /><br />
-		<button id="btn_klaar" class="btn btn-warning btn-lg">Klaar</button>
- 
     </div>
 
 	<script type="text/javascript">
         var race_id = "<%= race_id %>";
     </script>
-	<script type="text/javascript" src="js/locatieToevoegen.js"></script>
+	<script type="text/javascript" src="../../js/locatieToevoegen.js"></script>
 	
 </div>
 </body>
