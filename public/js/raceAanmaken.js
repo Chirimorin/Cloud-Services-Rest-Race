@@ -69,9 +69,9 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 			success: function(data) {
 				window.location = "/races/" + data._id + "/location?apikey=a"
 			}
-		});	*/
+		});*/
 		
-		window.location = "/races/552e3bc29bcd4e1100ccb399/location?apikey=a"
+		window.location = "/races/554a16d39fb4eee81b84cb0b/location?apikey=a"
 		
 	});
 	
