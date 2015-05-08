@@ -1,3 +1,7 @@
-/**
- * Created by Thomas on 1-4-2015.
- */
+$(document).ready(function() {
+	 
+	$('#myModal').on('shown.bs.modal', function () {
+		  $('.modal-body').load("");
+	});
+		
+});

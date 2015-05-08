@@ -6,7 +6,7 @@ $(document).ready(function() {
 	});
 	
 	$("#btn_klaar").on("click", function() {
-		window.location = "profile?apikey=a";
+		race.locations.length > 0 ? window.location = "profile?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
 	});
 });
 
