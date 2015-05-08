@@ -1,3 +1,5 @@
+var race = ""
+
 $(document).ready(function() {
 	getRace();
 	
@@ -20,6 +22,7 @@ function getRace() {
 		dataType: "json",
 		success: function(data) {
 			toonLocaties(data);
+			race = data;
 		}
 	});
 }
@@ -29,7 +32,7 @@ function toonLocaties(race) {
 	
 	if (race.locations.length > 0) {
 		for (var i = 0; i < race.locations.length; i++) {
-			$("#locaties").append("<div id=" + race.locations[i]._id + "><div class='col-sm-9'><span>" + race.locations[i].location.name + "</span><br /><span>(" + race.locations[i].location.lat + "," + race.locations[i].location.long + ")</span></div><div class='col-sm-3'><button id=" + race.locations[i]._id + " class='location btn btn-danger'>Verwijder</button></div></div><br/ ><br/ ><br/ >");
+			$("#locaties").append("<div id=" + race.locations[i]._id + "><div class='col-sm-9'><span>" + race.locations[i].location.name + "</span><br /><span>(" + race.locations[i].location.lat + ", " + race.locations[i].location.long + ")</span></div><div class='col-sm-3'><button id=" + race.locations[i]._id + " class='location btn btn-danger'>Verwijder</button></div></div><br/ ><br/ ><br/ >");
 			
 			$(".location").click(function() {
 				locatieVerwijderen($(this).attr("id"));
@@ -42,7 +45,6 @@ function toonLocaties(race) {
 }
 
 function locatieToevoegen() {
-		
 	$.ajax({
 		type: "POST",
 		url: "/races/" + race_id + "/location?apikey=a",
