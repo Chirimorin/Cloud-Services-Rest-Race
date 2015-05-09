@@ -5,6 +5,7 @@ var Race;
 var User;
 var Location;
 var handleError;
+var IO;
 
 // Get all races
 function getAllRaces(req, res) {
@@ -447,6 +448,7 @@ function addLocationToVisitedLocations(req, res) {
                             if (err) {
                                 return handleError(req, res, 500, err);
                             } else {
+                                IO.of(race._id).emit("userCheckedIn", user.visitedLocations);
                                 return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
                             }
                         });
@@ -454,6 +456,11 @@ function addLocationToVisitedLocations(req, res) {
                 });
             }
         });
+}
+
+function testSocket(req, res) {
+    console.log("Sending test socket msg");
+    IO.to(req.params.id).emit("userCheckedIn", { "test": true, "potato": [ "mashed", "salad" ]});
 }
 
 function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
@@ -518,8 +525,21 @@ router.route('/:id/location/:idLocation')
 router.route('/:id/location/:lat/:long')
     .put(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocationToVisitedLocations);
 
+router.route('/:id/testSocket')
+    .get(testSocket);
+
 // Export
-module.exports = function (mongoose, errCallback, roles) {
+module.exports = function (mongoose, errCallback, io) {
+    IO = io;
+    io.on("connection", function(socket) {
+        console.log("Races route socket connection!")
+        socket.on("joinRoom", function(raceId) {
+            console.log("User joining room " + raceId)
+            socket.emit("joinRoom", raceId);
+            socket.join(raceId);
+        });
+    });
+
     Race = mongoose.model('Race');
     User = mongoose.model('User');
     Location = mongoose.model('Location');

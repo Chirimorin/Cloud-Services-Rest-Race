@@ -158,6 +158,21 @@
 		var selectedRace = <%- JSON.stringify(race) %>;
     </script>
     <script type="text/javascript" src="../js/race.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        socket.on("userCheckedIn", function(msg) {
+            console.log(msg);
+        })
+
+        socket.on("joinRoom", function(msg) {
+            console.log(msg);
+        });
+
+        socket.emit("joinRoom", selectedRace._id);
+
+    </script>
 </div>
 </body>
 </html>
