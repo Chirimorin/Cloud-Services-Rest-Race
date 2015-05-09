@@ -99,13 +99,13 @@ function locatieToevoegen() {
 		},
 		dataType: "json",
 		data: {
-			location: {
+			"location": {
 				"name": $("#naam").val(),
 				"description": $("#omschrijving").val(),
 				"lat": parseFloat($("#lat").val()),
 				"long": parseFloat($("#long").val()),
 				"distance": parseInt($("#afstand").val())	
-			}	
+			}
 		},
 		success: function(data) {
 			getRace(data._id);
