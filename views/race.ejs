@@ -40,8 +40,123 @@
                 <% }
                 }%>
             </ul>
+
+			<button class="btn btn-warning" data-toggle="modal" data-target="#raceBewerken">Bewerken</button>
+
+			<!-- Race bewerken modal -->
+			<div class="modal fade" id="raceBewerken" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title" id="myModalLabel">Race bewerken</h4>
+						</div>
+						<div class="modal-body">
+							
+							<div class="well">
+							
+								<h3><span class="fa fa-flag-checkered"></span>  Race</h3>
+							
+								<div class="form-group">
+									<label>Naam</label>
+									<input type="text" class="form-control" id="naam">
+								</div>
+
+								<div class="form-group">
+									<label>Start tijd</label> 
+									<fieldset>
+										<span>Dag</span> 
+										<select id="dag_start" name="dag_start" class="dag"/></select>
+
+										<span>Maand</span> 
+										<select id="maand_start" name="maand_start" class="maand"/></select>
+											
+										<span>Jaar</span> 
+										<select id="jaar_start"  name="jaar_start" class="jaar"/></select> 
+										
+										<span>Uur</span> 
+										<select id="uur_start"  name="uur_start" class="uur"/></select> 
+										
+										<span>Minuten</span> 
+										<select id="minuten_start"  name="minuten_start" class="minuten"/></select> 	
+									</fieldset>
+								</div>
+
+								<div class="form-group">
+									<label>Eind tijd</label> 
+									<fieldset>
+										<span>Dag</span>
+										<select id="dag_eind" name="dag_eind" class="dag"/></select>
+
+										<span>Maand</span>
+										<select id="maand_eind" name="maand_eind" class="maand"/></select>
+											
+										<span>Jaar</span>
+										<select id="jaar_eind"  name="jaar_eind" class="jaar"/></select> 
+										
+										<span>Uur</span>
+										<select id="uur_eind"  name="uur_eind" class="uur"/></select> 
+										
+										<span>Minuten</span> 
+										<select id="minuten_eind"  name="minuten_eind" class="minuten"/></select>
+									</fieldset>
+								</div>
+							</div>
+								
+							<div class="well">
+								<h3><span class="fa fa-map-marker"></span> Locaties</h3>
+								<div id="locaties"></div>
+							</div>
+						
+							<div class="well">
+							
+								<h3><span class="fa fa-map-marker"></span> Locatie toevoegen</h3>
+								
+								<!-- LOCATIES TOEVOEGEN FORM -->
+								
+								<div class="form-group">
+									<label>Naam</label>
+									<input type="text" class="form-control" id="naam">
+								</div>
+								
+								<div class="form-group">
+									<label>Omschrijving</label>
+									<textarea class="form-control" id="omschrijving"></textarea>
+								</div>
+								
+								<div class="form-group">
+									<label>Latitude</label>
+									<input type="text" class="form-control" id="lat">
+								</div>
+								
+								<div class="form-group">
+									<label>Longitude</label>
+									<input type="text" class="form-control" id="long">
+								</div>
+								
+								<div class="form-group">
+									<label>Afstand</label>
+									<input type="text" class="form-control" id="afstand">
+								</div>
+
+								<button type="submit" id="btn_locatieToevoegen" class="btn btn-success">Locatie toevoegen</button>
+						 
+							</div>
+							
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-default" data-dismiss="modal">Annuleren</button>
+							<button id="btn_save" class="btn btn-primary">Opslaan</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
         </div>
     </div>
+	<script type="text/javascript">
+		var selectedRace = <%- JSON.stringify(race) %>;
+    </script>
     <script type="text/javascript" src="../js/race.js"></script>
 </div>
 </body>

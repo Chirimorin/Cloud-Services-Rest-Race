@@ -31,27 +31,11 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 	}
 	
 	$("#btn_raceAanmaken").on("click", function() {
-		
-		var isPrivate;
-		if ($("input:radio[name='private']:checked").val() == "ja") {
-			isPrivate = true;
-		}
-		else {
-			isPrivate = false;
-		}
 
 		var name = $("#naam").val();
 		var startTime = $("#jaar_start").val() + "-" + $("#maand_start").val() + "-" + $("#dag_start").val() + " " + $("#uur_start").val() + ":" + $("#minuten_start").val();
 		var endTime = $("#jaar_eind").val() + "-" + $("#maand_eind").val() + "-" + $("#dag_eind").val() + " " + $("#uur_eind").val() + ":" + $("#minuten_eind").val();
-		var hasSpecificOrder;
-		
-		if ($("input:radio[name='volgorde']:checked").val() == "ja") {
-			hasSpecificOrder = true;
-		}
-		else {
-			hasSpecificOrder = false;
-		}		
-
+			
 		$.ajax({
 			type: "POST",
 			url: "/races?apikey=a",
@@ -60,16 +44,18 @@ $(document).ready(function(){      //Add this line (and it's closing line)
 			},
 			dataType: "json",
 			data: {
-				"private": isPrivate,
+				"private": false,
 				"name": name,
 				"startTime": startTime,
 				"endTime": endTime,
-				"hasSpecificOrder": hasSpecificOrder
+				"hasSpecificOrder": false
 			},
 			success: function(data) {
 				window.location = "/races/" + data._id + "/location?apikey=a"
 			}
-		});	
+		});
+		
+		//window.location = "/races/554a16d39fb4eee81b84cb0b/location?apikey=a"
 		
 	});
 	
