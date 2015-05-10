@@ -1,5 +1,8 @@
 $(document).ready(function() {
 	
+	var start = new Date(selectedRace.startTime);
+	var end = new Date(selectedRace.endTime);
+	
 	$("#startDate").datepicker({ 
 		dateFormat: "dd-mm-yy" 
 	});
@@ -11,16 +14,27 @@ $(document).ready(function() {
 	// Uren toevoegen
 	for (var i = 0; i <= 23; i++) {
 		var uur = ("0" + i).slice( -2 );
-		$(".uur").append("<option>" + uur + "</option>");
+		uur == start.getHours() ? $("#uur_start").append("<option selected>" + uur + "</option>") : $("#uur_start").append("<option>" + uur + "</option>");
 	}
-	
+	for (var i = 0; i <= 23; i++) {
+		var uur = ("0" + i).slice( -2 );
+		uur == end.getHours() ? $("#uur_eind").append("<option selected>" + uur + "</option>") : $("#uur_eind").append("<option>" + uur + "</option>");
+	}
+
 	// Minuten toevoegen
 	for (var i = 0; i <= 59; i++) {
 		var minuten = ("0" + i).slice( -2 );
-		$(".minuten").append("<option>" + minuten + "</option>");
+		minuten == start.getMinutes() ? $("#minuten_start").append("<option selected>" + minuten + "</option>") : $("#minuten_start").append("<option>" + minuten + "</option>");
+	}
+	for (var i = 0; i <= 59; i++) {
+		var minuten = ("0" + i).slice( -2 );
+		minuten == end.getMinutes() ? $("#minuten_eind").append("<option selected>" + minuten + "</option>") : $("#minuten_eind").append("<option>" + minuten + "</option>");
 	}
 	
 	$("#naam").val(selectedRace.name);
+	$("#startDate").val(('0' + start.getDate()).slice(-2) + "-" + ('0' + (start.getMonth()+1)).slice(-2) + "-" + start.getFullYear());
+	$("#endDate").val(('0' + end.getDate()).slice(-2) + "-" + ('0' + (end.getMonth()+1)).slice(-2) + "-" + end.getFullYear());
+	
 	
 	toonLocaties(selectedRace);
 	
@@ -34,7 +48,7 @@ $(document).ready(function() {
 		var startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate(), $("#uur_start").val(), $("#minuten_start").val(), 0, 0);
 		
 		var end = $("#endDate").datepicker('getDate');
-		var endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate(), $("#uur_eind").val(), $("#minuten_start").val(), 0, 0);
+		var endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate(), $("#uur_eind").val(), $("#minuten_eind").val(), 0, 0);
 		
 		$.ajax({
 			type: "PUT",
