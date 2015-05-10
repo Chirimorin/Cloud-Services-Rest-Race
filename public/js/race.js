@@ -1,5 +1,7 @@
 $(document).ready(function() {
 	
+	$("#datepicker").datepicker();
+	
 	$("#naam").val(selectedRace.name);
 	toonLocaties(selectedRace);
 	
