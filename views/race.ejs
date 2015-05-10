@@ -62,48 +62,27 @@
 									<input type="text" class="form-control" id="naam">
 								</div>
 								
-								<input type="text" id="datepicker"/>
-
 								<div class="form-group">
-									<label>Start tijd</label> 
-									<fieldset>
-										<span>Dag</span> 
-										<select id="dag_start" name="dag_start" class="dag"/></select>
-
-										<span>Maand</span> 
-										<select id="maand_start" name="maand_start" class="maand"/></select>
-											
-										<span>Jaar</span> 
-										<select id="jaar_start"  name="jaar_start" class="jaar"/></select> 
-										
-										<span>Uur</span> 
-										<select id="uur_start"  name="uur_start" class="uur"/></select> 
-										
-										<span>Minuten</span> 
-										<select id="minuten_start"  name="minuten_start" class="minuten"/></select> 	
-									</fieldset>
+									<label>Start tijd</label>
+									<form class="form-inline">
+										<input type="text" id="startDate" class="form-control dateField"/>
+										<select id="uur_start"  name="uur_start" class="uur form-control timeField"/></select> 
+										<span>:</span>
+										<select id="minuten_start"  name="minuten_start" class="minuten form-control timeField"/></select>
+										<span>uur</span>
+									</form>
 								</div>
-
+								
 								<div class="form-group">
-									<label>Eind tijd</label> 
-									<fieldset>
-										<span>Dag</span>
-										<select id="dag_eind" name="dag_eind" class="dag"/></select>
-
-										<span>Maand</span>
-										<select id="maand_eind" name="maand_eind" class="maand"/></select>
-											
-										<span>Jaar</span>
-										<select id="jaar_eind"  name="jaar_eind" class="jaar"/></select> 
-										
-										<span>Uur</span>
-										<select id="uur_eind"  name="uur_eind" class="uur"/></select> 
-										
-										<span>Minuten</span> 
-										<select id="minuten_eind"  name="minuten_eind" class="minuten"/></select>
-									</fieldset>
+									<label>Eind tijd</label>
+									<form class="form-inline">
+										<input type="text" id="endDate" class="form-control dateField"/>
+										<select id="uur_eind"  name="uur_eind" class="uur form-control timeField"/></select> 
+										<span>:</span>
+										<select id="minuten_eind"  name="minuten_eind" class="minuten form-control timeField"/></select>
+										<span>uur</span>
+									</form>
 								</div>
-							</div>
 								
 							<div class="well">
 								<h3><span class="fa fa-map-marker"></span> Locaties</h3>
