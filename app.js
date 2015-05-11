@@ -37,6 +37,8 @@ var races = require('./routes/races')(mongoose, handleError);
 var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
 
+var data = require('./routes/data')(mongoose);
+
 var app = express();
 
 // Allow cross origin requests
@@ -79,6 +81,8 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/races', races);
 app.use('/locations', locations);
+
+app.use('/data', data);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
