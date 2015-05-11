@@ -8,6 +8,7 @@ var User = require('mongoose').model('User');
 function getRequest(route, statusCode, done) {
 	request(app)
 		.get(route)
+		.set('Accept',  'application/json')
 		.expect(statusCode)
 		.end(function(err, res) {
 			if(err){ return done(err); }
@@ -19,6 +20,7 @@ function getRequest(route, statusCode, done) {
 function postRequest(route, data, statusCode, done) {
 	request(app)
 		.post(route)
+		.set('Accept',  'application/json')
 		.send(data)
 		.expect(statusCode)
 		.end(function(err, res) {
@@ -31,6 +33,7 @@ function postRequest(route, data, statusCode, done) {
 function putRequest(route, data, statusCode, done) {
 	request(app)
 		.put(route)
+		.set('Accept',  'application/json')
 		.send(data)
 		.expect(statusCode)
 		.end(function(err, res) {
@@ -43,6 +46,7 @@ function putRequest(route, data, statusCode, done) {
 function deleteRequest(route, statusCode, done) {
 	request(app)
 		.delete(route)
+		.set('Accept',  'application/json')
 		.expect(statusCode)
 		.end(function(err, res) {
 			if(err){ return done(err); }
@@ -55,6 +59,9 @@ describe('Testing races route', function() {
 	
 	describe('Get all races', function() {
 		
+		// Reset data in de database
+		getRequest('/data', 200, function(err, res) {});	
+		
 		it('should return 302 when not logged in', function(done) {
 			getRequest('/races', 302, function(err, res) {
 				if(err){ return done(err); }
@@ -64,7 +71,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when logged in', function(done) {
-			getRequest('/races?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 200, function(err, res) { // Key gewone user, geen admin
+			getRequest('/races?apikey=test', 200, function(err, res) { // Key gewone user, geen admin
 				if(err){ return done(err); }
 				
 				done();
@@ -72,7 +79,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 5 races', function(done) {
-			getRequest('/races?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 200, function(err, res) { // Key gewone user, geen admin
+			getRequest('/races?apikey=test', 200, function(err, res) { // Key gewone user, geen admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -84,7 +91,7 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Get race by ID', function() {
+	/*describe('Get race by ID', function() {
 		
 		it('should return 302 when not logged in', function(done) {
 			getRequest('/races/55198f1a01a9a9e417213f34', 302, function(err, res) { // Id eerste race
@@ -243,7 +250,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-	});
+	});*/
 	
 	/*describe('Delete race', function() {		
 		
@@ -295,7 +302,7 @@ describe('Testing races route', function() {
 		
 	});*/
 	
-	describe('Add owner', function() {		
+	/*describe('Add owner', function() {		
 		
 		it('should return 302 when not logged in', function(done) {
 			putRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51', null, 302, function(err, res) { // Id eerste race, id owner = gewone user, geen admin, geen owner
@@ -502,7 +509,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-	});
+	});*/
 	
 	/*describe('Add location', function() {		
 		
