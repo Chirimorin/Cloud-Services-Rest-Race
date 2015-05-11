@@ -103,13 +103,23 @@ function locatieToevoegen() {
 			Accept: "application/json"
 		},
 		dataType: "json",
-		data: {
+		data: /*{
+			"orderPosition": 1,
 			"location": {
 				"name": $("#naam").val(),
 				"description": $("#omschrijving").val(),
 				"lat": parseFloat($("#lat").val()),
 				"long": parseFloat($("#long").val()),
 				"distance": parseInt($("#afstand").val())	
+			}
+		},*/
+		{
+			"orderPosition": 1,
+			"location": {
+				"name": "Testtest",
+				"lat": 10,
+				"long": 20,
+				"distance": 2	
 			}
 		},
 		success: function(data) {
