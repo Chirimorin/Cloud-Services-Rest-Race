@@ -71,7 +71,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when logged in', function(done) {
-			getRequest('/races?apikey=test', 200, function(err, res) { // Key gewone user, geen admin
+			getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -79,7 +79,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 5 races', function(done) {
-			getRequest('/races?apikey=test', 200, function(err, res) { // Key gewone user, geen admin
+			getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -91,10 +91,13 @@ describe('Testing races route', function() {
 		
 	});
 	
-	/*describe('Get race by ID', function() {
+	describe('Get race by ID', function() {
+		
+		// Reset data in de database
+		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			getRequest('/races/55198f1a01a9a9e417213f34', 302, function(err, res) { // Id eerste race
+			getRequest('/races/4edd40c86762e0fb12000001', 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
@@ -102,7 +105,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when logged in', function(done) {
-			getRequest('/races/55198f1a01a9a9e417213f34?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 200, function(err, res) { // Id eerste race, key gewone user, geen admin
+			getRequest('/races/4edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -110,19 +113,27 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return a race', function(done) {
-			getRequest('/races/55198f1a01a9a9e417213f34?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 200, function(err, res) { // Id eerste race, key gewone user, geen admin
+			getRequest('/races/4edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body._id).to.equal("55198f1a01a9a9e417213f34"); // Id eerste race
+				expect(res.body._id).to.equal("4edd40c86762e0fb12000001"); // Id race1
 					
 				done();
 			});	
 		});
 		
+		it('should return 500 when race is wrong', function(done) { // AuthKey user1
+			getRequest('/races/blabla?apikey=test', 500, function(err, res) {
+				if(err){ return done(err); }
+				
+				done();
+			});			
+		});
+		
 	});
 	
-	describe('Add race', function() {		
+	/*describe('Add race', function() {		
 		
 		it('should return 302 when not logged in', function(done) {
 			var race = {

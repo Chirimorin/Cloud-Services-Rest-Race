@@ -33,6 +33,7 @@ function resetData(req, res, next) {
 	
 	// Races toevoegen
 	var race1 = new Race();
+	race1._id = mongoose.Types.ObjectId('4edd40c86762e0fb12000001');
 	race1.name = "Race 1";
 	race1.owners.push(user1._id);
 	race1.participants.push(user2._id);
@@ -44,6 +45,7 @@ function resetData(req, res, next) {
 	race1.save();
 	
 	var race2 = new Race();
+	race2._id = mongoose.Types.ObjectId('4edd40c86762e0fb12000002');
 	race2.name = "Race 2";
 	race2.owners.push(user1._id);
 	race2.participants.push(user2._id);
@@ -55,6 +57,7 @@ function resetData(req, res, next) {
 	race2.save();
 	
 	var race3 = new Race();
+	race3._id = mongoose.Types.ObjectId('4edd40c86762e0fb12000003');
 	race3.name = "Race 3";
 	race3.owners.push(user1._id);
 	race3.participants.push(user2._id);
@@ -66,6 +69,7 @@ function resetData(req, res, next) {
 	race3.save();
 	
 	var race4 = new Race();
+	race4._id = mongoose.Types.ObjectId('4edd40c86762e0fb12000004');
 	race4.name = "Race 4";
 	race4.owners.push(user1._id);
 	race4.participants.push(user2._id);
@@ -77,6 +81,7 @@ function resetData(req, res, next) {
 	race4.save();
 	
 	var race5 = new Race();
+	race5._id = mongoose.Types.ObjectId('4edd40c86762e0fb12000005');
 	race5.name = "Race 5";
 	race5.owners.push(user1._id);
 	race5.participants.push(user2._id);
@@ -94,7 +99,8 @@ router.route('/')
     .get(resetData)
 
 // Export
-module.exports = function (mongoose, errCallback, roles) {
+module.exports = function (mongoose) {
+	this.mongoose = mongoose;
 	User = mongoose.model('User');
     Race = mongoose.model('Race');
     Location = mongoose.model('Location');
