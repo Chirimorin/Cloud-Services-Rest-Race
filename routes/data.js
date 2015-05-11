@@ -15,7 +15,7 @@ function resetData(req, res, next) {
 	var admin = new User();
 	admin.logins.local.email = "admin@admin.nl";
     admin.logins.local.password = admin.generateHash("admin");
-	admin.roles.push("Admin");
+	admin.roles.push("admin");
 	admin.authKey = "admin";
 	admin.save();
 	
