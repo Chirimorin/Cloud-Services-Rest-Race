@@ -653,4 +653,57 @@ describe('Testing races route', function() {
 		
 	});
 	
+	describe('Delete location', function() {
+
+		// Reset data in de database
+		getRequest('/data', 200, function(err, res) {});
+		
+		it('should return 302 when not logged in', function(done) {
+			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001', 302, function(err, res) { // Id race1, Id waypoint location1 bij race1
+				if(err){ return done(err); }
+				
+				done();
+			});			
+		});
+		
+		it('should return 500 when race does not exist', function(done) {
+			deleteRequest('/races/blabla/location/7edd40c86762e0fb12000001?apikey=test3', 500, function(err, res) { // Id waypoint location1 bij race1, authKey user3
+				if(err){ return done(err); }
+				
+				done();
+			});			
+		});
+		
+		it('should return 403 when user is not owner and not admin', function(done) {
+			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001?apikey=test3', 403, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user3
+				if(err){ return done(err); }
+				
+				done();
+			});			
+		});
+		
+		it('should return 200 when user is owner', function(done) {
+			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user1
+				if(err){ return done(err); }
+				
+				expect(res.body).to.not.be.undefined;
+				expect(res.body.locations).to.have.length(2);
+				
+				done();
+			});			
+		});
+		
+		it('should return 200 when user is admin', function(done) {
+			deleteRequest('/races/4edd40c86762e0fb12000002/location/7edd40c86762e0fb12000003?apikey=admin', 200, function(err, res) { // Id race2, id waypoint location1 bij race2, authKey admin
+				if(err){ return done(err); }
+				
+				expect(res.body).to.not.be.undefined;
+				expect(res.body.locations).to.have.length(2);
+				
+				done();
+			});			
+		});
+		
+	});
+	
 });

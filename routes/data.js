@@ -73,8 +73,8 @@ function resetData(req, res, next) {
 	race1.owners.push(user4._id);
 	race1.participants.push(user2._id);
 	race1.hasSpecificOrder = false;
-	race1.locations.push({location: location1._id});
-	race1.locations.push({location: location2._id});
+	race1.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000001'), location: location1._id});
+	race1.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000002'), location: location2._id});
 	race1.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
 	race1.endTime = new Date(2015, 5, 12, 30, 0, 0);
 	race1.private = false;
@@ -87,8 +87,8 @@ function resetData(req, res, next) {
 	race2.owners.push(user4._id);
 	race2.participants.push(user2._id);
 	race2.hasSpecificOrder = false;
-	race2.locations.push({location: location1._id});
-	race2.locations.push({location: location2._id});
+	race2.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000003'), location: location1._id});
+	race2.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000004'), location: location2._id});
 	race2.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
 	race2.endTime = new Date(2015, 5, 12, 30, 0, 0);
 	race2.private = false;
@@ -101,8 +101,8 @@ function resetData(req, res, next) {
 	race3.owners.push(user4._id);
 	race3.participants.push(user2._id);
 	race3.hasSpecificOrder = false;
-	race3.locations.push({location: location1._id});
-	race3.locations.push({location: location2._id});
+	race3.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000005'), location: location1._id});
+	race3.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000006'), location: location2._id});
 	race3.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
 	race3.endTime = new Date(2015, 5, 12, 30, 0, 0);
 	race3.private = false;
@@ -115,8 +115,8 @@ function resetData(req, res, next) {
 	race4.owners.push(user4._id);
 	race4.participants.push(user2._id);
 	race4.hasSpecificOrder = false;
-	race4.locations.push({location: location1._id});
-	race4.locations.push({location: location2._id});
+	race4.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000007'), location: location1._id});
+	race4.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000008'), location: location2._id});
 	race4.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
 	race4.endTime = new Date(2015, 5, 12, 30, 0, 0);
 	race4.private = false;
@@ -129,8 +129,8 @@ function resetData(req, res, next) {
 	race5.owners.push(user4._id);
 	race5.participants.push(user2._id);
 	race5.hasSpecificOrder = false;
-	race5.locations.push({location: location1._id});
-	race5.locations.push({location: location2._id});
+	race5.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000009'), location: location1._id});
+	race5.locations.push({_id: mongoose.Types.ObjectId('7edd40c86762e0fb12000010'), location: location2._id});
 	race5.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
 	race5.endTime = new Date(2015, 5, 12, 30, 0, 0);
 	race5.private = false;
