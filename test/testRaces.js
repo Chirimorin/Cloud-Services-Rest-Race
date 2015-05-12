@@ -57,7 +57,7 @@ function deleteRequest(route, statusCode, done) {
 
 describe('Testing races route', function() {
 	
-	/*describe('Get all races', function() {
+	describe('Get all races', function() {
 		
 		// Reset data in de database
 		getRequest('/data', 200, function(err, res) {});	
@@ -285,7 +285,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-	});*/
+	});
 	
 	describe('Delete race', function() {	
 
@@ -300,7 +300,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		/*it('should return 500 when race does not exist', function(done) {
+		it('should return 500 when race does not exist', function(done) {
 			deleteRequest('/races/blabla?apikey=test2', 500, function(err, res) { // AuthKey user2 (geen owner)
 				if(err){ return done(err); }
 				
@@ -336,22 +336,25 @@ describe('Testing races route', function() {
 				
 				done();
 			});			
-		});*/
+		});
 		
 	});
 	
-	/*describe('Add owner', function() {		
+	describe('Add owner', function() {	
+
+		// Reset data in de database
+		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			putRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51', null, 302, function(err, res) { // Id eerste race, id owner = gewone user, geen admin, geen owner
+			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2', null, 302, function(err, res) { // Id race1, id user2
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
-			putRequest('/races/11198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', null, 404, function(err, res) { // Id GEEN bestaande race, key gewone user, geen admin, geen owner
+		it('should return 500 when race does not exist', function(done) {
+			putRequest('/races/blabla/owner/555111e9e6051ea818f936e2?apikey=test3', null, 500, function(err, res) { // Id user2, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -359,7 +362,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			putRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', null, 403, function(err, res) { // Id eerste race, key gewone user, geen admin, geen owner
+			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2?apikey=test3', null, 403, function(err, res) { // Id race1, id user2, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -367,24 +370,24 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			putRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=2fe16885-ad75-4494-ad26-f13a3c4bf249', null, 200, function(err, res) { // Id eerste race, key user die OWNER is van de race en GEEN ADMIN
+			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2?apikey=test', null, 200, function(err, res) { // Id race1, id user2, authkKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body.owners).to.have.length(2);
-				expect(res.body.owners).to.include("5519afa13eaee7240daa1f51"); // Meegegeven owner id
+				expect(res.body.owners).to.have.length(3);
+				expect(res.body.owners).to.include("555111e9e6051ea818f936e2"); // Id user2
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			putRequest('/races/55198f4401a9a9e417213f36/owner/5519b30fe6c16434155d2948?apikey=7b6fcca7-71a4-4a12-9665-7a5def68c5d0', null, 200, function(err, res) { // Id tweede race, key user die ADMIN is van de race en GEEN OWNER
+			putRequest('/races/4edd40c86762e0fb12000002/owner/555111e9e6051ea818f936e2?apikey=admin', null, 200, function(err, res) { // Id race2, id user2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body.owners).to.have.length(2);
-				expect(res.body.owners).to.include("5519b30fe6c16434155d2948"); // Meegegeven owner id
+				expect(res.body.owners).to.have.length(3);
+				expect(res.body.owners).to.include("555111e9e6051ea818f936e2"); // Id user2
 				
 				done();
 			});			
@@ -393,18 +396,20 @@ describe('Testing races route', function() {
 	});
 	
 	describe('Remove owner', function() {		
+	
+		// Reset data in de database
+		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			deleteRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51', 302, function(err, res) { // Id eerste race, id owner = gewone user, geen admin, geen owner
+			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004', 302, function(err, res) { // Id race1, id user4
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
-			var race;
-			deleteRequest('/races/11198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 404, function(err, res) { // Id GEEN bestaande race, key gewone user, geen admin, geen owner
+		it('should return 500 when race does not exist', function(done) {
+			deleteRequest('/races/blabla/owner/5edd40c86762e0fb12000004?apikey=test3', 500, function(err, res) { // Id user4, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -412,7 +417,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			deleteRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=fd29427d-ed40-4c52-b3b5-1e74bfaed104', 403, function(err, res) { // Id eerste race, key gewone user, geen admin, geen owner
+			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004?apikey=test3', 403, function(err, res) { // Id race1, id user4, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -420,24 +425,24 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			deleteRequest('/races/55198f1a01a9a9e417213f34/owner/5519afa13eaee7240daa1f51?apikey=2fe16885-ad75-4494-ad26-f13a3c4bf249', 200, function(err, res) { // Id eerste race, key user die OWNER is van de race en GEEN ADMIN
+			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004?apikey=test', 200, function(err, res) { // Id race1, id user4, authkKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(1);
-				expect(res.body.owners).to.not.include("5519afa13eaee7240daa1f51"); // Meegegeven owner id
+				expect(res.body.owners).to.not.include("5edd40c86762e0fb12000004"); // Id user4
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			deleteRequest('/races/55198f4401a9a9e417213f36/owner/5519b30fe6c16434155d2948?apikey=7b6fcca7-71a4-4a12-9665-7a5def68c5d0', 200, function(err, res) { // Id tweede race, key user die ADMIN is van de race en GEEN OWNER
+			deleteRequest('/races/4edd40c86762e0fb12000002/owner/5edd40c86762e0fb12000004?apikey=admin', 200, function(err, res) { // Id race2, id user4, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(1);
-				expect(res.body.owners).to.not.include("5519b30fe6c16434155d2948"); // Meegegeven owner id
+				expect(res.body.owners).to.not.include("5edd40c86762e0fb12000004"); // Id user4
 				
 				done();
 			});			
@@ -445,7 +450,7 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Add participant', function() {		
+	/*describe('Add participant', function() {		
 		
 		it('should return 302 when not logged in', function(done) {
 			putRequest('/races/55198f1a01a9a9e417213f34/participant', null, 302, function(err, res) { // Id eerste race
