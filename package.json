@@ -1,38 +1,38 @@
 {
-	"name": "RestRace",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"start": "node ./bin/www",
-		"test": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
-	},
-	"dependencies": {
-		"async": "*",
-		"body-parser": "~1.12.0",
-		"cookie-parser": "~1.3.4",
-		"debug": "~2.1.1",
-		"express": "~4.12.2",
-		"ejs" : "~0.8.5", 
-		"mongoose": "^4.0.0",
-		"morgan": "~1.5.1",
-		"serve-favicon": "~2.2.0",
-        "bcrypt-nodejs": "*",
-        "method-override": "~1.0.0",
-        "express-session": "~1.0.0",
-        "passport" : "~0.1.17",
-        "passport-local" : "~0.1.6",
-        "passport-facebook" : "~1.0.2",
-        "passport-google-oauth" : "~0.1.5",
-        "passport-localapikey": "~0.0.3",
-        "connect-flash" : "~0.1.1",
-        "connect-roles": "^3.1.1",
-        "node-uuid": "*",
-        "underscore": "*"
-
-	},
-	"devDependencies": {
-		"chai": "^2.1.2",
-		"mocha": "^2.2.1",
-		"supertest": "^0.15.0"
-	}
+  "name": "RestRace",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
+  },
+  "dependencies": {
+    "async": "*",
+    "bcrypt-nodejs": "*",
+    "body-parser": "~1.12.0",
+    "connect-flash": "~0.1.1",
+    "connect-roles": "^3.1.1",
+    "cookie-parser": "~1.3.4",
+    "debug": "~2.1.1",
+    "ejs": "~0.8.5",
+    "express": "~4.12.2",
+    "express-session": "~1.0.0",
+    "method-override": "~1.0.0",
+    "mongoose": "^4.0.0",
+    "morgan": "~1.5.1",
+    "node-uuid": "*",
+    "passport": "~0.1.17",
+    "passport-facebook": "~1.0.2",
+    "passport-google-oauth": "~0.1.5",
+    "passport-local": "~0.1.6",
+    "passport-localapikey": "~0.0.3",
+    "serve-favicon": "~2.2.0",
+    "socket.io": "^1.3.5",
+    "underscore": "*"
+  },
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "mocha": "^2.2.1",
+    "supertest": "^0.15.0"
+  }
 }
