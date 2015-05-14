@@ -20,26 +20,8 @@
             <% }
             }%>
             <h3><span class="fa fa-user"></span> Deelnemers</h3>
-            <ul id="racesList" class="list-group">
-                <% if (race.participants.length == 0) { %>
-                    <li class="list-group-item">
-                        <strong>
-                            Nog geen deelnemers.
-                        </strong>
-                    </li>
-                <% } else {
-                for (i = 0; i < race.participants.length; i++) {
-                    var participant = race.participants[i]; %>
-                <li class="list-group-item">
-                    <span class="badge">
-                        <%= participant.visitedLocations.length %> / <%= race.locations.length %> checkpoints
-                    </span>
-                    <strong>
-                        <%= (participant.nickname ? participant.nickname : participant.logins.local.email) %>
-                    </strong>
-                </li>
-                <% }
-                }%>
+            <ul id="racesList" class="list-group scoreBoard">
+                <!-- Will be filled from js -->
             </ul>
 
             <% if (isOwner) {%>
