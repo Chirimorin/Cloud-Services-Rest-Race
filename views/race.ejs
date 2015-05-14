@@ -1,15 +1,33 @@
 <!doctype html>
 <html>
 <% include ./shared/head %>
+<%
+    function formatDate(date) {
+        var d = date.getDate();
+        var m = date.getMonth() + 1;
+        var y = date.getFullYear();
+        var h = date.getHours();
+        var min = date.getMinutes();
+
+        return '' + (d <= 9 ? '0' + d : d) + '-' + (m<=9 ? '0' + m : m) + '-' + y + ' ' + (h<=9 ? '0' + h : h) + ':' + (min <=9 ? '0' + min : min);
+    }
+
+    var date = new Date(race.startTime);
+    var startDate = formatDate(date);
+    var endDate = "";
+    if (race.endTime) {
+        endDate = formatDate(race.endTime);
+    }
+%>
 <body>
 
 <div class="container">
     <div class="col-sm-6">
         <div class="well">
             <h3><span class="fa fa-flag-checkered"></span> <%= race.name %></h3>
-            <strong>Begin tijd:</strong> <%= race.startTime %><br>
+            <strong>Begin tijd:</strong> <%= startDate %><br>
             <% if (race.endTime) { %>
-            <strong>Eind tijd:</strong> <%= race.endTime %><br>
+            <strong>Eind tijd:</strong> <%= endDate %><br>
             <% } %>
             <strong>Eigenaren:</strong>
             <% for (i = 0; i < race.owners.length; i++) {
