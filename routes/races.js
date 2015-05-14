@@ -458,7 +458,7 @@ function addLocationToVisitedLocations(req, res) {
                             if (distance < location.distance) {
                                 var exists = false;
                                 for (j = 0; j < req.user.visitedLocations.length && !exists; j++) {
-                                    if (req.user.visitedLocations[i].location == location._id) {
+                                    if (req.user.visitedLocations[j].location == location._id) {
                                         exists = true;
                                     }
                                 }
