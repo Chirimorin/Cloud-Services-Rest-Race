@@ -76,6 +76,8 @@ $(document).ready(function() {
         });
     })
 
+    $("#deleteRace").click(raceVerwijderen);
+
     var socket = io();
 
     socket.on("userCheckedIn", function(msg) {
@@ -180,4 +182,21 @@ function getRace(race_id) {
             toonLocaties(data);
         }
     });
+}
+
+function raceVerwijderen() {
+    if (confirm("Weet je zeker dat je deze race wilt verwijderen?")) {
+        $.ajax({
+            type: "DELETE",
+            url: "/races/" + selectedRace._id + "?apikey=a",
+            headers: {
+                Accept: "application/json"
+            },
+            dataType: "json",
+            success: function(data) {
+                alert("Race is verwijderd.");
+                window.location = "/profile";
+            }
+        });
+    }
 }

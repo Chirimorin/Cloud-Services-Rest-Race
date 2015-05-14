@@ -61,8 +61,12 @@ function getRaceByID(req, res) {
             race = filterLocations(race);
 
             res.status(200);
-            if (req.accepts('text/html'))
-                return res.render('race', { "race": race });
+            if (req.accepts('text/html')) {
+                var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
+                var isOwner = (ownerIds.indexOf(JSON.stringify(req.user._id)) != -1 || req.user.roles.indexOf("admin") != -1);
+                console.log("User " + req.user._id + "Is " + (isOwner ? "" : "not ") + "an owner of this race." + ownerIds);
+                return res.render('race', { "race": race, "isOwner": isOwner });
+            }
             else
                 return res.json(race);
         }
