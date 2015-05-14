@@ -234,6 +234,14 @@ function addParticipant(req, res) {
                 res.json({status: 404, message: "Race niet gevonden"});
             }
             else {
+                var now = new Date();
+                var raceEnd = new Date(race.endTime);
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
                     race.save(function (err, race) {
@@ -416,6 +424,20 @@ function addLocationToVisitedLocations(req, res) {
                 return handleError(req, res, 500, err);
             }
             else {
+                var now = new Date();
+                var raceStart = new Date(race.startTime);
+                var raceEnd = new Date(race.endTime);
+
+                if (raceStart > now) {
+                    res.status = 400;
+                    return res.json({ message: "Race is nog niet gestart! Probeer het later nog eens." })
+                }
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
                 race = filterLocations(race);
 
                 var participates = false;
