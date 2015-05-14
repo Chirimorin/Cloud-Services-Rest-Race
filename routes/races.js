@@ -234,6 +234,14 @@ function addParticipant(req, res) {
                 res.json({status: 404, message: "Race niet gevonden"});
             }
             else {
+                var now = new Date();
+                var raceEnd = new Date(race.endTime);
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
                     race.save(function (err, race) {
