@@ -37,6 +37,7 @@ $(document).ready(function() {
 
 
     toonLocaties(selectedRace);
+    toonDeelnemers(selectedRace);
 
     $("#btn_locatieToevoegen").on("click", function() {
         locatieToevoegen();
@@ -98,17 +99,74 @@ function toonDeelnemers(race) {
     if (race.participants.length == 0) {
         displayString = '<li class="list-group-item"><strong>Nog geen deelnemers.</strong></li>';
     } else {
+        // Sort the participants by progress in the race.
+        race.participants.sort(compareParticipants);
+
+        // build the HTML to display.
         for (i = 0; i < race.participants.length; i++) {
             var participant = race.participants[i];
-            displayString += '<li class="list-group-item"><span class="badge">';
-            displayString += participant.visitedLocations.length + " / " + race.locations.length + " checkpoints";
-            displayString += '</span><strong>' + (participant.nickname ? participant.nickname : participant.logins.local.email) + '</strong></li>';
+            displayString +=    '<li class="list-group-item">' +
+                                    '<span class="badge">' +
+                                        participant.visitedLocations.length + " / " + race.locations.length + " checkpoints" +
+                                    '</span>' +
+                                    '<span class="position">#' +
+                                        (i+1) +
+                                    '</span>&nbsp;' +
+                                    '<strong>' +
+                                        (participant.nickname ? participant.nickname : participant.logins.local.email) +
+                                    '</strong>' +
+                                '</li>';
         }
     }
 
-    console.log(displayString);
-
     $("#racesList").html(displayString);
+}
+
+function compareParticipants(a, b) {
+    // First try sorting by the amount of visited locations.
+    if (a.visitedLocations.length > b.visitedLocations.length) {
+        // More locations visited is a better score.
+        return -1;
+    } else if (a.visitedLocations.length < b.visitedLocations.length) {
+        // Less locations visited is a worse score.
+        return 1;
+    } else {
+        // Both participants have visited the same amount of locations.
+        // Sort further by the time finished.
+
+        function getLastDate(locations) {
+            // Start with 1 jan 1970. Any valid checked in date will be bigger.
+            var date = new Date(0);
+
+            for (i = 0; i < locations.length; i++) {
+                // Make a date object for comparing
+                var checkIn = new Date(locations[i].time);
+
+                // If this date is later than the current, replace it.
+                if (checkIn > date) {
+                    date = checkIn;
+                }
+            }
+
+            return date;
+        }
+
+        // Get the last check-in dates
+        var lastCheckInA = getLastDate(a.visitedLocations);
+        var lastCheckInB = getLastDate(b.visitedLocations);
+
+        if (lastCheckInA < lastCheckInB) {
+            // Earlier check-in is a better score.
+            return -1;
+        } else if (lastCheckInA > lastCheckInB) {
+            // Later check-in is a worse score.
+            return 1;
+        }
+
+        // Last check-in was at the exact same time. Order is irrelevant.
+        // This probably never happens.
+        return 0;
+    }
 }
 
 function toonLocaties(race) {
@@ -180,6 +238,7 @@ function getRace(race_id) {
         dataType: "json",
         success: function(data) {
             toonLocaties(data);
+            toonDeelnemers(data);
         }
     });
 }
