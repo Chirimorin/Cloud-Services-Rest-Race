@@ -295,7 +295,10 @@ function removeParticipant(req, res) {
 // Add location to a race
 function addLocation(req, res) {
     console.log("1");
-	console.log("body: " + req.body.location);
+	console.log("body: " + req.body);
+    console.log("orderPosition: " + req.body.orderPosition);
+    console.log("location: " + req.body.location);
+    console.log("location name: " + req.body.location["name"]);
     var location = new Location({
         name: req.body.location.name,
         lat: req.body.location.lat,
@@ -329,14 +332,16 @@ function addLocation(req, res) {
             else {
                 if (race.locations.indexOf(req.params.idLocation) == -1) {
                     race.locations.push({orderPosition: req.body.orderPosition, location: location._id});
-                    race.save(function (err, race) {
+                    race.save(function (err, newRace) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            res.status(200);
+                            res.json(newRace);
                         }
                     });
                 }
-                res.status(200);
-                res.json(race);
+
             }
         }
     });
