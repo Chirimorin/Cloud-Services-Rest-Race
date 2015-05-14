@@ -8,7 +8,7 @@ $(document).ready(function() {
 	});
 	
 	$("#btn_klaar").on("click", function() {
-		race.locations.length > 0 ? window.location = "profile?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
+		race.locations.length > 0 ? window.location = "./?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
 	});
 });
 
