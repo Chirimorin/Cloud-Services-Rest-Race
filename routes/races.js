@@ -64,7 +64,6 @@ function getRaceByID(req, res) {
             if (req.accepts('text/html')) {
                 var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
                 var isOwner = (ownerIds.indexOf(JSON.stringify(req.user._id)) != -1 || req.user.roles.indexOf("admin") != -1);
-                console.log("User " + req.user._id + "Is " + (isOwner ? "" : "not ") + "an owner of this race." + ownerIds);
                 return res.render('race', { "race": race, "isOwner": isOwner });
             }
             else
