@@ -127,6 +127,17 @@ function toonLocaties(race) {
 }
 
 function locatieToevoegen() {
+    var data = {
+        "orderPosition": 1,
+        "location": {
+            "name": $("#locatieNaam").val(),
+            "description": $("#omschrijving").val(),
+            "lat": parseFloat($("#lat").val()),
+            "long": parseFloat($("#long").val()),
+            "distance": parseInt($("#afstand").val())
+        }
+    };
+
     $.ajax({
         type: "POST",
         url: "/races/" + selectedRace._id + "/location?apikey=a",
@@ -134,25 +145,9 @@ function locatieToevoegen() {
             Accept: "application/json"
         },
         dataType: "json",
-        data: /*{
-            "orderPosition": 1,
-            "location": {
-                "name": $("#naam").val(),
-                "description": $("#omschrijving").val(),
-                "lat": parseFloat($("#lat").val()),
-                "long": parseFloat($("#long").val()),
-                "distance": parseInt($("#afstand").val())
-            }
-        },*/
-        {
-            "orderPosition": 1,
-            "location": {
-                "name": "Testtest",
-                "lat": 10,
-                "long": 20,
-                "distance": 2
-            }
-        },
+        contentType: 'application/json',
+        processData: false,
+        data: JSON.stringify(data),
         success: function(data) {
             getRace(data._id);
         }
