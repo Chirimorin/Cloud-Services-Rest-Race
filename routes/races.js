@@ -58,6 +58,34 @@ function getRaceByID(req, res) {
             return handleError(req, res, 500, err);
         }
         else {
+            // Map all location Ids that are part of this race.
+            var locationIds = race.locations.map(function(e) { return e.location._id });
+
+            // Loop through every participant to check visitedLocations
+            for (i = 0; i < race.participants.length; i++) {
+                var visitedLocations = race.participants[i].visitedLocations;
+
+                // Loop through every visited location to check if it exists in the race.
+                // Looping backwards so removals don't cause skips and index out of bounds problems.
+                for (j = visitedLocations.length -1; j >= 0; j--) {
+                    var id = visitedLocations[j].location;
+
+                    // indexOf always returns -1, even if the 2 values are equal. Looping instead.
+                    var found = false;
+                    for (k = 0; k < locationIds.length && !found; k++) {
+                        if (locationIds[k] == id) {
+                            found = true;
+                        }
+                    }
+
+                    // If the location was not found, remove it from the user array. This is safe due to the backwards looping of visitedLocations
+                    if (!found) {
+                        race.participants[i].visitedLocations.splice(j, 1);
+                    }
+
+                }
+            }
+
             res.status(200);
             if (req.accepts('text/html'))
                 return res.render('race', { "race": race });
