@@ -75,8 +75,39 @@ $(document).ready(function() {
 			}
 		});
 	})
+
+    var socket = io();
+
+    socket.on("userCheckedIn", function(msg) {
+        console.log(msg);
+        toonDeelnemers(msg);
+    })
+
+    socket.on("joinRoom", function(msg) {
+        console.log(msg);
+    });
+
+    socket.emit("joinRoom", selectedRace._id);
 		
 });
+
+function toonDeelnemers(race) {
+    var displayString = "";
+    if (race.participants.length == 0) {
+        displayString = '<li class="list-group-item"><strong>Nog geen deelnemers.</strong></li>';
+    } else {
+        for (i = 0; i < race.participants.length; i++) {
+            var participant = race.participants[i];
+            displayString += '<li class="list-group-item"><span class="badge">';
+            displayString += participant.visitedLocations.length + " / " + race.locations.length + " checkpoints";
+            displayString += '</span><strong>' + (participant.nickname ? participant.nickname : participant.logins.local.email) + '</strong></li>';
+        }
+    }
+
+    console.log(displayString);
+
+    $("#racesList").html(displayString);
+}
 
 function toonLocaties(race) {
 	$("#locaties").empty(); 
