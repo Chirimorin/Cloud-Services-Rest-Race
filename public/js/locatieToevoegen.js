@@ -8,7 +8,7 @@ $(document).ready(function() {
 	});
 	
 	$("#btn_klaar").on("click", function() {
-		race.locations.length > 0 ? window.location = "profile?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
+		race.locations.length > 0 ? window.location = "./?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
 	});
 });
 
@@ -45,27 +45,32 @@ function toonLocaties(race) {
 }
 
 function locatieToevoegen() {
-	$.ajax({
-		type: "POST",
-		url: "/races/" + race_id + "/location?apikey=a",
-		headers: {
-			Accept: "application/json"
-		},
-		dataType: "json",
-		data: {
-			location: {
-				"name": $("#naam").val(),
-				"description": $("#omschrijving").val(),
-				"lat": parseFloat($("#lat").val()),
-				"long": parseFloat($("#long").val()),
-				"distance": parseInt($("#afstand").val())	
-			}	
-		},
-		success: function(data) {
-			getRace();
-		}
-	});	
+    var data = {
+        "location": {
+            "name": $("#naam").val(),
+            "description": $("#omschrijving").val(),
+            "lat": parseFloat($("#lat").val()),
+            "long": parseFloat($("#long").val()),
+            "distance": parseInt($("#afstand").val())
+        }
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "/races/" + race_id + "/location?apikey=a",
+        headers: {
+            Accept: "application/json"
+        },
+        dataType: "json",
+        contentType: 'application/json',
+        processData: false,
+        data: JSON.stringify(data),
+        success: function(data) {
+            getRace();
+        }
+    });
 }
+
 
 function locatieVerwijderen(idLocatie) {
 	$.ajax({

@@ -5,6 +5,7 @@ var Race;
 var User;
 var Location;
 var handleError;
+var IO;
 
 // Get all races
 function getAllRaces(req, res) {
@@ -57,9 +58,14 @@ function getRaceByID(req, res) {
             return handleError(req, res, 500, err);
         }
         else {
+            race = filterLocations(race);
+
             res.status(200);
-            if (req.accepts('text/html'))
-                return res.render('race', { "race": race });
+            if (req.accepts('text/html')) {
+                var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
+                var isOwner = (ownerIds.indexOf(JSON.stringify(req.user._id)) != -1 || req.user.roles.indexOf("admin") != -1);
+                return res.render('race', { "race": race, "isOwner": isOwner });
+            }
             else
                 return res.json(race);
         }
@@ -228,6 +234,14 @@ function addParticipant(req, res) {
                 res.json({status: 404, message: "Race niet gevonden"});
             }
             else {
+                var now = new Date();
+                var raceEnd = new Date(race.endTime);
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
                     race.save(function (err, race) {
@@ -292,7 +306,10 @@ function removeParticipant(req, res) {
 // Add location to a race
 function addLocation(req, res) {
     console.log("1");
-	console.log("body: " + req.body.location);
+	console.log("body: " + req.body);
+    console.log("orderPosition: " + req.body.orderPosition);
+    console.log("location: " + req.body.location);
+    console.log("location name: " + req.body.location["name"]);
     var location = new Location({
         name: req.body.location.name,
         lat: req.body.location.lat,
@@ -326,14 +343,16 @@ function addLocation(req, res) {
             else {
                 if (race.locations.indexOf(req.params.idLocation) == -1) {
                     race.locations.push({orderPosition: req.body.orderPosition, location: location._id});
-                    race.save(function (err, race) {
+                    race.save(function (err, newRace) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            res.status(200);
+                            res.json(newRace);
                         }
                     });
                 }
-                res.status(200);
-                res.json(race);
+
             }
         }
     });
@@ -398,13 +417,40 @@ function addLocationToVisitedLocations(req, res) {
     }
 
     Race.findById(req.params.id)
+        .populate("participants")
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
                 return handleError(req, res, 500, err);
             }
             else {
-                if (race.participants.indexOf(req.user._id) == -1) {
+                var now = new Date();
+                var raceStart = new Date(race.startTime);
+                var raceEnd = new Date(race.endTime);
+
+                if (raceStart > now) {
+                    res.status = 400;
+                    return res.json({ message: "Race is nog niet gestart! Probeer het later nog eens." })
+                }
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
+                race = filterLocations(race);
+
+                var participates = false;
+
+                for (i = 0; i < race.participants.length && !participates; i++) {
+                    // Stringify on the _ids because otherwise the comparison will always be false.
+                    if (JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id)) {
+                        participates = true;
+                    }
+                }
+
+                if  (!participates) {
+                    console.log("User " + req.user._id + " is not a participant");
                     res.status(403);
                     return res.json({status: 403, message: "Je doet niet mee aan deze race"})
                 }
@@ -429,7 +475,7 @@ function addLocationToVisitedLocations(req, res) {
                             if (distance < location.distance) {
                                 var exists = false;
                                 for (j = 0; j < req.user.visitedLocations.length && !exists; j++) {
-                                    if (req.user.visitedLocations[i].location == location._id) {
+                                    if (req.user.visitedLocations[j].location == location._id) {
                                         exists = true;
                                     }
                                 }
@@ -447,11 +493,41 @@ function addLocationToVisitedLocations(req, res) {
                             if (err) {
                                 return handleError(req, res, 500, err);
                             } else {
-                                return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
+                                // Get the race again for updated location data.
+
+                                Race.findById(req.params.id)
+                                    .populate("participants")
+                                    .populate("locations.location")
+                                    .exec(function (err, newRace){
+                                        if (!err) {
+                                            filterLocations(newRace);
+                                            IO.to(req.params.id).emit("userCheckedIn", newRace);
+                                        }
+                                        return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
+                                    });
+
+
                             }
                         });
                     }
                 });
+            }
+        });
+}
+
+function testSocket(req, res) {
+    console.log("Sending test socket msg")
+
+    Race.findById(req.params.id)
+        .populate("participants")
+        .populate("locations.location")
+        .exec(function (err, race) {
+            if (err) {
+                return handleError(req, res, 500, err);
+            } else {
+                race = filterLocations(race);
+                IO.to(req.params.id).emit("userCheckedIn", race);
+                return res.json({ message: "Socket message sent!", race: race });
             }
         });
 }
@@ -488,6 +564,42 @@ function deg2rad(deg) {
     return deg * (Math.PI/180)
 }
 
+function filterLocations(race) {
+    if (race) {
+        // Map all location Ids that are part of this race.
+        var locationIds = race.locations.map(function (e) {
+            return e.location._id
+        });
+
+        // Loop through every participant to check visitedLocations
+        for (i = 0; i < race.participants.length; i++) {
+            var visitedLocations = race.participants[i].visitedLocations;
+
+            // Loop through every visited location to check if it exists in the race.
+            // Looping backwards so removals don't cause skips and index out of bounds problems.
+            for (j = visitedLocations.length - 1; j >= 0; j--) {
+                var id = visitedLocations[j].location;
+
+                // indexOf always returns -1, even if the 2 values are equal. Looping instead.
+                var found = false;
+                for (k = 0; k < locationIds.length && !found; k++) {
+                    if (locationIds[k] == id) {
+                        found = true;
+                    }
+                }
+
+                // If the location was not found, remove it from the user array. This is safe due to the backwards looping of visitedLocations
+                if (!found) {
+                    race.participants[i].visitedLocations.splice(j, 1);
+                }
+
+            }
+        }
+    }
+
+    return race;
+}
+
 router.route('/')
     .get(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), getAllRaces)
     .post(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addRace);
@@ -518,8 +630,21 @@ router.route('/:id/location/:idLocation')
 router.route('/:id/location/:lat/:long')
     .put(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocationToVisitedLocations);
 
+router.route('/:id/testSocket')
+    .get(testSocket);
+
 // Export
-module.exports = function (mongoose, errCallback, roles) {
+module.exports = function (mongoose, errCallback, io) {
+    IO = io;
+    io.on("connection", function(socket) {
+        console.log("Races route socket connection!")
+        socket.on("joinRoom", function(raceId) {
+            console.log("User joining room " + raceId)
+            socket.emit("joinRoom", raceId);
+            socket.join(raceId);
+        });
+    });
+
     Race = mongoose.model('Race');
     User = mongoose.model('User');
     Location = mongoose.model('Location');

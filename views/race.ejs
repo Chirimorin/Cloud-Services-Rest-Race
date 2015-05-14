@@ -1,14 +1,33 @@
 <!doctype html>
 <html>
 <% include ./shared/head %>
+<%
+    function formatDate(date) {
+        var d = date.getDate();
+        var m = date.getMonth() + 1;
+        var y = date.getFullYear();
+        var h = date.getHours();
+        var min = date.getMinutes();
+
+        return '' + (d <= 9 ? '0' + d : d) + '-' + (m<=9 ? '0' + m : m) + '-' + y + ' ' + (h<=9 ? '0' + h : h) + ':' + (min <=9 ? '0' + min : min);
+    }
+
+    var date = new Date(race.startTime);
+    var startDate = formatDate(date);
+    var endDate = "";
+    if (race.endTime) {
+        endDate = formatDate(race.endTime);
+    }
+%>
 <body>
+
 <div class="container">
     <div class="col-sm-6">
         <div class="well">
             <h3><span class="fa fa-flag-checkered"></span> <%= race.name %></h3>
-            <strong>Begin tijd:</strong> <%= race.startTime %><br>
+            <strong>Begin tijd:</strong> <%= startDate %><br>
             <% if (race.endTime) { %>
-            <strong>Eind tijd:</strong> <%= race.endTime %><br>
+            <strong>Eind tijd:</strong> <%= endDate %><br>
             <% } %>
             <strong>Eigenaren:</strong>
             <% for (i = 0; i < race.owners.length; i++) {
@@ -19,29 +38,14 @@
             <% }
             }%>
             <h3><span class="fa fa-user"></span> Deelnemers</h3>
-            <ul id="racesList" class="list-group">
-                <% if (race.participants.length == 0) { %>
-                    <li class="list-group-item">
-                        <strong>
-                            Nog geen deelnemers.
-                        </strong>
-                    </li>
-                <% } else {
-                for (i = 0; i < race.participants.length; i++) {
-                    var participant = race.participants[i]; %>
-                <li class="list-group-item">
-                    <span class="badge">
-                        <%= participant.visitedLocations.length %> / <%= race.locations.length %> checkpoints
-                    </span>
-                    <strong>
-                        <%= (participant.nickname ? participant.nickname : participant.logins.local.email) %>
-                    </strong>
-                </li>
-                <% }
-                }%>
+            <ul id="racesList" class="list-group scoreBoard">
+                <!-- Will be filled from js -->
             </ul>
 
+            <% if (isOwner) {%>
+
 			<button class="btn btn-warning" data-toggle="modal" data-target="#raceBewerken">Bewerken</button>
+            <button class="btn btn-danger" id="deleteRace">Verwijderen</button>
 
 			<!-- Race bewerken modal -->
 			<div class="modal fade" id="raceBewerken" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -54,52 +58,33 @@
 						<div class="modal-body">
 							
 							<div class="well">
-							
 								<h3><span class="fa fa-flag-checkered"></span>  Race</h3>
 							
 								<div class="form-group">
 									<label>Naam</label>
 									<input type="text" class="form-control" id="naam">
 								</div>
-
+								
 								<div class="form-group">
-									<label>Start tijd</label> 
-									<fieldset>
-										<span>Dag</span> 
-										<select id="dag_start" name="dag_start" class="dag"/></select>
-
-										<span>Maand</span> 
-										<select id="maand_start" name="maand_start" class="maand"/></select>
-											
-										<span>Jaar</span> 
-										<select id="jaar_start"  name="jaar_start" class="jaar"/></select> 
-										
-										<span>Uur</span> 
-										<select id="uur_start"  name="uur_start" class="uur"/></select> 
-										
-										<span>Minuten</span> 
-										<select id="minuten_start"  name="minuten_start" class="minuten"/></select> 	
-									</fieldset>
+									<label>Start tijd</label>
+									<form class="form-inline">
+										<input type="text" id="startDate" class="form-control dateField" readonly/>
+										<select id="uur_start" class="form-control timeField"/></select> 
+										<span>:</span>
+										<select id="minuten_start"  class="form-control timeField"/></select>
+										<span>uur</span>
+									</form>
 								</div>
-
+								
 								<div class="form-group">
-									<label>Eind tijd</label> 
-									<fieldset>
-										<span>Dag</span>
-										<select id="dag_eind" name="dag_eind" class="dag"/></select>
-
-										<span>Maand</span>
-										<select id="maand_eind" name="maand_eind" class="maand"/></select>
-											
-										<span>Jaar</span>
-										<select id="jaar_eind"  name="jaar_eind" class="jaar"/></select> 
-										
-										<span>Uur</span>
-										<select id="uur_eind"  name="uur_eind" class="uur"/></select> 
-										
-										<span>Minuten</span> 
-										<select id="minuten_eind"  name="minuten_eind" class="minuten"/></select>
-									</fieldset>
+									<label>Eind tijd</label>
+									<form class="form-inline">
+										<input type="text" id="endDate" class="form-control dateField" readonly/>
+										<select id="uur_eind" class="form-control timeField"/></select> 
+										<span>:</span>
+										<select id="minuten_eind"  class="form-control timeField"/></select>
+										<span>uur</span>
+									</form>
 								</div>
 							</div>
 								
@@ -116,7 +101,7 @@
 								
 								<div class="form-group">
 									<label>Naam</label>
-									<input type="text" class="form-control" id="naam">
+									<input type="text" class="form-control" id="locatieNaam">
 								</div>
 								
 								<div class="form-group">
@@ -151,12 +136,15 @@
 					</div>
 				</div>
 			</div>
-			
+
+            <% } // End if owner%>
+
         </div>
     </div>
 	<script type="text/javascript">
 		var selectedRace = <%- JSON.stringify(race) %>;
     </script>
+    <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="../js/race.js"></script>
 </div>
 </body>

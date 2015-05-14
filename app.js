@@ -31,9 +31,17 @@ function handleError(req, res, statusCode, message){
     res.json(message);
 };
 
+
+
+var app = express();
+
+// Socket IO
+var io = require('socket.io')();
+app.io = io;
+
 var routes = require('./routes/index')(passport);
 var users = require('./routes/users')(mongoose, passport, roles, handleError);
-var races = require('./routes/races')(mongoose, handleError);
+var races = require('./routes/races')(mongoose, handleError, io);
 var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
 

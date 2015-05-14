@@ -1,8 +1,28 @@
 body {
-  padding: 50px;
+  padding-top: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.dateField {
+	width: 60%;
+}
+
+.timeField {
+	width: 15%;
+}
+
+#racesList.scoreBoard li:first-child {
+    background-color: #d5a500;
+}
+
+#racesList.scoreBoard li:nth-child(2) {
+    background-color: #b7b7b7;
+}
+
+#racesList.scoreBoard li:nth-child(3) {
+    background-color: #a17419;
 }
