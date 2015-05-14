@@ -416,6 +416,20 @@ function addLocationToVisitedLocations(req, res) {
                 return handleError(req, res, 500, err);
             }
             else {
+                var now = new Date();
+                var raceStart = new Date(race.startTime);
+                var raceEnd = new Date(race.endTime);
+
+                if (raceStart > now) {
+                    res.status = 400;
+                    return res.json({ message: "Race is nog niet gestart! Probeer het later nog eens." })
+                }
+
+                if (now > raceEnd) {
+                    res.status = 400;
+                    return res.json({ message: "Race is geëindigd, helaas!" })
+                }
+
                 race = filterLocations(race);
 
                 var participates = false;
