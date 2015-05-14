@@ -2,6 +2,7 @@
 <html>
 <% include ./shared/head %>
 <body>
+
 <div class="container">
     <div class="col-sm-6">
         <div class="well">
@@ -41,7 +42,10 @@
                 }%>
             </ul>
 
+            <% if (isOwner) {%>
+
 			<button class="btn btn-warning" data-toggle="modal" data-target="#raceBewerken">Bewerken</button>
+            <button class="btn btn-danger" id="deleteRace">Verwijderen</button>
 
 			<!-- Race bewerken modal -->
 			<div class="modal fade" id="raceBewerken" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -132,7 +136,9 @@
 					</div>
 				</div>
 			</div>
-			
+
+            <% } // End if owner%>
+
         </div>
     </div>
 	<script type="text/javascript">
