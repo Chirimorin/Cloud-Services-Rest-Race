@@ -43,6 +43,8 @@ $(document).ready(function() {
         locatieToevoegen();
     })
 
+    $("#btn_findLocationInfo").click(findLocationInfo);
+
     $("#btn_save").on("click", function() {
 
         var start = $("#startDate").datepicker('getDate');
@@ -212,6 +214,22 @@ function toonLocaties(race) {
     else {
         $("#locaties").append("<span>Er zijn nog geen locaties toegevoegd.</span>");
     }
+}
+
+function findLocationInfo() {
+    $.ajax({
+        type: "GET",
+        url: "/locationInfo?query=" + $("#locatieNaam").val(),
+        headers: {
+            Accept: "application/json"
+        },
+        dataType: "json",
+        success: function(data) {
+            $("#omschrijving").val("Adres: " + data.address);
+            $("#lat").val(data.lat);
+            $("#long").val(data.long);
+        }
+    });
 }
 
 function locatieToevoegen() {
