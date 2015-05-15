@@ -32,15 +32,23 @@
             <strong>Eigenaren:</strong>
             <% for (i = 0; i < race.owners.length; i++) {
                 var owner = race.owners[i]; %>
-            <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %><%
-            if (i + 1 < race.owners.length) {
-            %>,
-            <% }
+                <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %><%
+                if (i + 1 < race.owners.length) {
+                    %>,<%
+                }
             }%>
             <h3><span class="fa fa-user"></span> Deelnemers</h3>
             <ul id="racesList" class="list-group scoreBoard">
                 <!-- Will be filled from js -->
             </ul>
+
+            <% if (isParticipant) {%>
+                <button class="btn btn-success hidden" id="joinRace">Meedoen aan deze race</button>
+                <button class="btn btn-danger" id="leaveRace">Race verlaten</button>
+            <% } else { %>
+                <button class="btn btn-success" id="joinRace">Meedoen aan deze race</button>
+                <button class="btn btn-danger hidden" id="leaveRace">Race verlaten</button>
+            <% } %>
 
             <% if (isOwner) {%>
 
@@ -103,6 +111,10 @@
 									<label>Naam</label>
 									<input type="text" class="form-control" id="locatieNaam">
 								</div>
+
+                                <div class="form-group">
+                                    <button id="btn_findLocationInfo" class="btn btn-warning">Zoek locatie informatie</button>
+                                </div>
 								
 								<div class="form-group">
 									<label>Omschrijving</label>
@@ -143,9 +155,10 @@
     </div>
 	<script type="text/javascript">
 		var selectedRace = <%- JSON.stringify(race) %>;
+        var userId = <%- JSON.stringify(userId) %>;
     </script>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="../js/race.js"></script>
+    <script type="text/javascript" src="/js/race.js"></script>
 </div>
 </body>
 </html>

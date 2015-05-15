@@ -6,11 +6,29 @@ $(document).ready(function() {
 	$("#btn_locatieToevoegen").on("click", function() {
 		locatieToevoegen();
 	});
+
+    $("#btn_findLocationInfo").click(findLocationInfo);
 	
 	$("#btn_klaar").on("click", function() {
 		race.locations.length > 0 ? window.location = "./?apikey=a" : alert("Een race moet minstens 1 locatie hebben.");
 	});
 });
+
+function findLocationInfo() {
+    $.ajax({
+        type: "GET",
+        url: "/locationInfo?query=" + $("#naam").val(),
+        headers: {
+            Accept: "application/json"
+        },
+        dataType: "json",
+        success: function(data) {
+            $("#omschrijving").val("Adres: " + data.address);
+            $("#lat").val(data.lat);
+            $("#long").val(data.long);
+        }
+    });
+}
 
 function getRace() {
 	$.ajax({

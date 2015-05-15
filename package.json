@@ -26,6 +26,7 @@
     "passport-google-oauth": "~0.1.5",
     "passport-local": "~0.1.6",
     "passport-localapikey": "~0.0.3",
+    "request": "^2.55.0",
     "serve-favicon": "~2.2.0",
     "socket.io": "^1.3.5",
     "underscore": "*"
