@@ -288,45 +288,77 @@ function removeParticipant(req, res) {
             if (!race) {
                 res.status(404);
                 res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (req.params.idParticipant) {
-                if (race.owners.indexOf(req.user._id) != -1 || req.user.roles.indexOf("admin") != -1) {
-                    if (race.participants.indexOf(req.params.idParticipant) != -1) {
-                        race.participants.splice(race.participants.indexOf(req.params.idParticipant), 1);
+            } else {
+                var locationIds = race.locations.map(function(e) {
+                    return JSON.stringify(e.location._id);
+                });
+
+                if (req.params.idParticipant) {
+                    if (race.owners.indexOf(req.user._id) != -1 || req.user.roles.indexOf("admin") != -1) {
+                        if (race.participants.indexOf(req.params.idParticipant) != -1) {
+                            race.participants.splice(race.participants.indexOf(req.params.idParticipant), 1);
+                            race.save(function (err, race) {
+                                if (err) {
+                                    return handleError(req, res, 500, err);
+                                } else {
+                                    removeUserLocations(req.params.idParticipant, locationIds);
+                                    raceChanged(race._id);
+                                }
+                            });
+                            res.status(200);
+                            res.json(race);
+                        }
+                    }
+                    else {
+                        res.status(403);
+                        res.json({status: 403, message: "Forbidden"});
+                    }
+                }
+                else {
+                    if (race.participants.indexOf(req.user._id) != -1) {
+                        race.participants.splice(race.participants.indexOf(req.user._id), 1);
                         race.save(function (err, race) {
                             if (err) {
                                 return handleError(req, res, 500, err);
                             } else {
+                                removeUserLocations(req.user._id, locationIds);
                                 raceChanged(race._id);
                             }
                         });
-                        res.status(200);
-                        res.json(race);
                     }
+                    res.status(200);
+                    res.json(race);
                 }
-                else {
-                    res.status(403);
-                    res.json({status: 403, message: "Forbidden"});
-                }
-            }
-            else {
-                if (race.participants.indexOf(req.user._id) != -1) {
-                    race.participants.splice(race.participants.indexOf(req.user._id), 1);
-                    race.save(function (err, race) {
-                        if (err) {
-                            return handleError(req, res, 500, err);
-                        } else {
-                            raceChanged(race._id);
-                        }
-                    });
-                }
-                res.status(200);
-                res.json(race);
             }
         }
     });
 }
 
+function removeUserLocations(userId, locationIds) {
+    console.log("Removing locations " + locationIds + " from user " + userId);
+
+    if (userId && locationIds) {
+        User.findById(userId, function (err, user) {
+            if (err) {
+                console.log("Error finding user: " + err);
+            } else {
+                for (i = user.visitedLocations.length - 1; i >= 0; i--) {
+                    if (locationIds.indexOf(JSON.stringify(user.visitedLocations[i].location)) != -1) {
+                        user.visitedLocations.splice(i, 1);
+                    }
+                }
+
+                user.save(function (err, user) {
+                    if (err) {
+                        console.log("Error saving user: " + err);
+                    } else {
+                        console.log("User locations removed successfully.");
+                    }
+                });
+            }
+        });
+    }
+}
 
 // Add location to a race
 function addLocation(req, res) {
