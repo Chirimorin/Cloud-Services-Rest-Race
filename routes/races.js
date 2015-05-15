@@ -564,7 +564,7 @@ function raceChanged(raceId) {
                 console.log(err);
             } else {
                 race = filterLocations(race);
-                IO.to(raceId).emit("userCheckedIn", race);
+                IO.to(raceId).emit("raceChanged", race);
             }
         });
 }

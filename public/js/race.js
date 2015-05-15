@@ -83,7 +83,7 @@ $(document).ready(function() {
 
     var socket = io();
 
-    socket.on("userCheckedIn", function(msg) {
+    socket.on("raceChanged", function(msg) {
         console.log(msg);
         toonRaceInfo(msg);
     })
