@@ -362,11 +362,6 @@ function removeUserLocations(userId, locationIds) {
 
 // Add location to a race
 function addLocation(req, res) {
-    console.log("1");
-	console.log("body: " + req.body);
-    console.log("orderPosition: " + req.body.orderPosition);
-    console.log("location: " + req.body.location);
-    console.log("location name: " + req.body.location["name"]);
     var location = new Location({
         name: req.body.location.name,
         lat: req.body.location.lat,
@@ -374,7 +369,6 @@ function addLocation(req, res) {
         distance: req.body.location.distance
     });
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
-    console.log("2");
     location.save(function (err, location) {
         if (err) {
             return handleError(req, res, 500, err);
@@ -383,7 +377,6 @@ function addLocation(req, res) {
             res.status(201);
         }
     });
-    console.log("3");
     Race.findById(req.params.id, function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
