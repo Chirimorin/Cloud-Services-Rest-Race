@@ -248,9 +248,6 @@ function addParticipant(req, res) {
                 res.json({status: 404, message: "Race niet gevonden"});
             }
             else {
-                console.log("Race gevonden");
-                console.log(race);
-
                 var now = new Date();
                 var raceEnd = new Date(race.endTime);
 
@@ -261,8 +258,6 @@ function addParticipant(req, res) {
 
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
-                    console.log("Saving race...");
-                    console.log(race);
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
@@ -651,12 +646,9 @@ function cleanupRace(race) {
     // This functions clears all wrong references.
 
     if (race) {
-        console.log("Cleaning up race '" + race.name + "'...");
-
         var edited = false;
 
         if (race.locations) {
-            console.log(race.locations.length + " locations found");
             for (i = race.locations.length-1; i >= 0; i--) {
                 if (!race.locations[i].location) {
                     console.log("Race location at index " + i + " is null. Removing it...");
@@ -667,7 +659,6 @@ function cleanupRace(race) {
         }
 
         if (race.participants) {
-            console.log(race.participants.length + " participants found");
             for (i = race.participants.length-1; i >= 0; i--) {
                 var participant = race.participants[i];
 
@@ -684,7 +675,6 @@ function cleanupRace(race) {
         }
 
         if (race.owners) {
-            console.log(race.owners.length + " owners found");
             for (i = race.owners.length-1; i >= 0; i--) {
                 var owner = race.owners[i];
 
