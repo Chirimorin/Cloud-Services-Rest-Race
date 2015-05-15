@@ -224,8 +224,11 @@ function removeOwner(req, res) {
 
 // Add participant to a race
 function addParticipant(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate("locations.location")
+        .exec(function (err, race) {
         if (err) {
+            Console.log("Error loading race");
             return handleError(req, res, 500, err);
         }
         else {
@@ -234,6 +237,9 @@ function addParticipant(req, res) {
                 res.json({status: 404, message: "Race niet gevonden"});
             }
             else {
+                console.log("Race gevonden");
+                console.log(race);
+
                 var now = new Date();
                 var raceEnd = new Date(race.endTime);
 
@@ -244,14 +250,22 @@ function addParticipant(req, res) {
 
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
+                    console.log("Saving race...");
+                    console.log(race);
                     race.save(function (err, race) {
                         if (err) {
+                            console.log("Error saving race");
+                            console.log("User id: " + req.user._id);
                             return handleError(req, res, 500, err);
+                        } else {
+                            res.status(200);
+                            return res.json(race);
                         }
                     });
+                } else {
+                    res.status(200);
+                    return res.json(race);
                 }
-                res.status(200);
-                res.json(race);
             }
         }
     });
@@ -565,13 +579,14 @@ function deg2rad(deg) {
 }
 
 function filterLocations(race) {
+    // Make sure no false references are present in the race.
+    race = cleanupRace(race);
+
     if (race) {
         if (race.locations) {
             // Map all location Ids that are part of this race.
             var locationIds = race.locations.map(function (e) {
-                if (e.location) {
-                    return e.location._id
-                }
+                return e.location._id
             });
 
             // Loop through every participant to check visitedLocations
@@ -602,6 +617,73 @@ function filterLocations(race) {
     }
 
     return race;
+}
+
+function cleanupRace(race) {
+    // This functions clears all wrong references.
+
+    if (race) {
+        console.log("Cleaning up race '" + race.name + "'...");
+
+        var edited = false;
+
+        if (race.locations) {
+            console.log(race.locations.length + " locations found");
+            for (i = race.locations.length-1; i >= 0; i--) {
+                if (!race.locations[i].location) {
+                    console.log("Race location at index " + i + " is null. Removing it...");
+                    race.locations.splice(i, 1);
+                    edited = true;
+                }
+            }
+        }
+
+        if (race.participants) {
+            console.log(race.participants.length + " participants found");
+            for (i = race.participants.length-1; i >= 0; i--) {
+                var participant = race.participants[i];
+
+                if (!participant._id) {
+                    // If an _id is present, participants are populated and it exists.
+                    if (participant == "" || participant == null) {
+                        // Empty string is always incorrect.
+                        console.log("Race has empty participant at index " + i);
+                        race.participants.splice(i, 1);
+                        edited = true;
+                    }
+                }
+            }
+        }
+
+        if (race.owners) {
+            console.log(race.owners.length + " owners found");
+            for (i = race.owners.length-1; i >= 0; i--) {
+                var owner = race.owners[i];
+
+                if (!owner._id) {
+                    // If an _id is present, participants are populated and it exists.
+                    if (owner == "" || owner == null) {
+                        // Empty string is always incorrect.
+                        console.log("Race has empty owner at index " + i);
+                        race.owners.splice(i, 1);
+                        edited = true;
+                    }
+                }
+            }
+        }
+
+        if (edited) {
+            race.save(function (err, race) {
+                if (err) {
+                    console.log("Failed to save edited race!");
+                } else {
+                    console.log("Successfully removed nonexistant locations from race.");
+                }
+            });
+        }
+
+        return race;
+    }
 }
 
 router.route('/')

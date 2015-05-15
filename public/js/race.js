@@ -78,6 +78,7 @@ $(document).ready(function() {
     })
 
     $("#deleteRace").click(raceVerwijderen);
+    $("#joinRace").click(joinRace);
 
     var socket = io();
 
@@ -258,4 +259,19 @@ function raceVerwijderen() {
             }
         });
     }
+}
+
+function joinRace() {
+    $.ajax({
+        type: "PUT",
+        url: "/races/" + selectedRace._id + "/participant?apikey=a",
+        headers: {
+            Accept: "application/json"
+        },
+        dataType: "json",
+        success: function(data) {
+            toonLocaties(data);
+            toonDeelnemers(data);
+        }
+    });
 }

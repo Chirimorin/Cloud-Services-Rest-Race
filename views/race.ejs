@@ -32,16 +32,17 @@
             <strong>Eigenaren:</strong>
             <% for (i = 0; i < race.owners.length; i++) {
                 var owner = race.owners[i]; %>
-            <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %><%
-            if (i + 1 < race.owners.length) {
-            %>,
-            <% }
+                <%= (owner.nickname ? owner.nickname : owner.logins.local.email) %><%
+                if (i + 1 < race.owners.length) {
+                    %>,<%
+                }
             }%>
             <h3><span class="fa fa-user"></span> Deelnemers</h3>
             <ul id="racesList" class="list-group scoreBoard">
                 <!-- Will be filled from js -->
             </ul>
 
+            <button class="btn btn-success" id="joinRace">Meedoen aan deze race</button>
             <% if (isOwner) {%>
 
 			<button class="btn btn-warning" data-toggle="modal" data-target="#raceBewerken">Bewerken</button>
