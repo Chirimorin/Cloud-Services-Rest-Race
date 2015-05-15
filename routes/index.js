@@ -1,4 +1,5 @@
 var express = require('express');
+var request = require('request');
 var _passport;
 
 function getHome(req, res, next) {
@@ -90,6 +91,30 @@ function unauthorized(req, res, next) {
     res.json({message: "Unauthorized"});
 }
 
+function findLocation(req,res,next) {
+    if (req.query.query) {
+        request('https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyBJN8C0Wo7vMvODJUVyV1W-7MGjcOkoiDc&query=' + req.query.query, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var result = JSON.parse(body).results[0];
+
+                res.status(200);
+                res.json({"address": result.formatted_address, "lat": result.geometry.location.lat, "long": result.geometry.location.lng });
+            } else {
+                if (error) {
+                    res.status(500);
+                    res.json({ "error": error });
+                } else {
+                    res.status(response.statusCode);
+                    res.json("Could not contact API");
+                }
+            }
+        })
+    } else {
+        res.status(400);
+        return res.json({ message: "Bad request" });
+    }
+}
+
 module.exports = function (passport, errCallback) {
     _passport = passport;
     var router = express();
@@ -117,6 +142,9 @@ module.exports = function (passport, errCallback) {
     router.route('/unauthorized')
         .get(unauthorized)
         .post(unauthorized);
+
+    router.route('/locationInfo')
+        .get(findLocation);
 
     return router;
 };

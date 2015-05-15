@@ -111,6 +111,10 @@
 									<label>Naam</label>
 									<input type="text" class="form-control" id="locatieNaam">
 								</div>
+
+                                <div class="form-group">
+                                    <button id="btn_findLocationInfo" class="btn btn-warning">Zoek locatie informatie</button>
+                                </div>
 								
 								<div class="form-group">
 									<label>Omschrijving</label>
@@ -154,7 +158,7 @@
         var userId = <%- JSON.stringify(userId) %>;
     </script>
     <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="../js/race.js"></script>
+    <script type="text/javascript" src="/js/race.js"></script>
 </div>
 </body>
 </html>
