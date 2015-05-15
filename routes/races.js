@@ -55,9 +55,16 @@ function getRaceByID(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
         if (err) {
+            if (err.kind == "ObjectId") {
+                // ObjectId cast failed, meaning the race doesn't exist.
+                res.status(404);
+                return res.json({ message: "Race niet gevonden" });
+            }
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else if (!race) {
+            res.status(404);
+            return res.json({ message: "Race niet gevonden" });
+        } else {
             race = filterLocations(race);
 
             res.status(200);
@@ -85,14 +92,27 @@ function addRace(req, res) {
         startTime: req.body.startTime,
         private: req.body.private
     });
+
+    if (!race.name || !(race.hasSpecificOrder === true || race.hasSpecificOrder === false) || !race.startTime || !(race.private === true || race.private === false) ) {
+        res.status(400);
+        return res.json({ message: "Niet alle nodige data is ingevuld." });
+    }
+
     race.owners.push(req.user._id);
     typeof req.body.endTime != "undefined" ? race["endTime"] = req.body.endTime : race["endTime"] = null;
 
     race.save(function (err, race) {
         if (err) {
+            if (err.kind == "ObjectId") {
+                // ObjectId cast failed, meaning the race doesn't exist.
+                res.status(404);
+                return res.json({ message: "Race niet gevonden" });
+            }
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else if (!race) {
+            res.status(404);
+            return res.json({ message: "Race niet gevonden" });
+        } else {
             res.status(201);
 			
 			if (req.accepts('text/html')) {
@@ -113,19 +133,20 @@ function updateRaceByID(req, res) {
     Race.findById(req.params.id)
         .populate('locations.location')
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+                return res.json({ message: "Race niet gevonden" });
+            } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
-            }
-            else {
+            } else {
                 race.name = req.body.name;
                 race.hasSpecificOrder = req.body.hasSpecificOrder;
                 race.startTime = req.body.startTime;
@@ -141,30 +162,29 @@ function updateRaceByID(req, res) {
                 res.status(200);
                 res.json(race);
             }
-        }
-    });
+        });
 }
 
 // Delete race by ID
 function deleteRaceByID(req, res) {
     Race.findById(req.params.id, function (err, race) {
         if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err.kind == "ObjectId") {
+                // ObjectId cast failed, meaning the race doesn't exist.
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
+                return res.json({ message: "Race niet gevonden" });
             }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
-                res.status(403);
-                res.json({status: 403, message: "Forbidden"});
-            }
-            else {
-                race.remove();
-                res.status(200);
-                res.json(race);
-            }
+            return handleError(req, res, 500, err);
+        } else if (!race) {
+            res.status(404);
+            res.json({status: 404, message: "Race niet gevonden"});
+        } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+            res.status(403);
+            res.json({status: 403, message: "Forbidden"});
+        } else {
+            race.remove();
+            res.status(200);
+            res.json(race);
         }
     });
 }
@@ -174,19 +194,20 @@ function addOwner(req, res) {
     Race.findById(req.params.id)
         .populate('locations.location')
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+                return res.json({ message: "Race niet gevonden" });
+            } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
-            }
-            else {
+            } else {
                 if (race.owners.indexOf(req.params.idOwner) == -1) {
                     race.owners.push(req.params.idOwner);
                     race.save(function (err, race) {
@@ -194,13 +215,15 @@ function addOwner(req, res) {
                             return handleError(req, res, 500, err);
                         } else {
                             raceChanged(race._id);
+                            res.status(200);
+                            res.json(race);
                         }
                     });
+                } else {
+                    res.status(200);
+                    res.json(race);
                 }
-                res.status(200);
-                res.json(race);
             }
-        }
     });
 }
 
@@ -209,19 +232,20 @@ function removeOwner(req, res) {
     Race.findById(req.params.id)
         .populate('locations.location')
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+                return res.json({ message: "Race niet gevonden" });
+            } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
-            }
-            else {
+            } else {
                 if (race.owners.indexOf(req.params.idOwner) != -1) {
                     race.owners.splice(race.owners.indexOf(req.params.idOwner), 1);
                     race.save(function (err, race) {
@@ -229,13 +253,15 @@ function removeOwner(req, res) {
                             return handleError(req, res, 500, err);
                         } else {
                             raceChanged(race._id);
+                            res.status(200);
+                            res.json(race);
                         }
                     });
+                } else {
+                    res.status(404);
+                    res.json(race);
                 }
-                res.status(200);
-                res.json(race);
             }
-        }
     });
 }
 
@@ -244,16 +270,17 @@ function addParticipant(req, res) {
     Race.findById(req.params.id)
         .populate("locations.location")
         .exec(function (err, race) {
-        if (err) {
-            Console.log("Error loading race");
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else {
+                return res.json({ message: "Race niet gevonden" });
+            } else {
                 var now = new Date();
                 var raceEnd = new Date(race.endTime);
 
@@ -278,7 +305,6 @@ function addParticipant(req, res) {
                     return res.json(race);
                 }
             }
-        }
     });
 }
 
@@ -287,13 +313,16 @@ function removeParticipant(req, res) {
     Race.findById(req.params.id)
         .populate("locations.location")
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
+                return res.json({ message: "Race niet gevonden" });
             } else {
                 var locationIds = race.locations.map(function(e) {
                     return JSON.stringify(e.location._id);
@@ -301,19 +330,23 @@ function removeParticipant(req, res) {
 
                 if (req.params.idParticipant) {
                     if (race.owners.indexOf(req.user._id) != -1 || req.user.roles.indexOf("admin") != -1) {
-                        if (race.participants.indexOf(req.params.idParticipant) != -1) {
-                            race.participants.splice(race.participants.indexOf(req.params.idParticipant), 1);
+                        var participantIds = race.participants.map(function(e) { return JSON.stringify(e) });
+                        if (participantIds.indexOf(JSON.stringify(req.params.idParticipant)) != -1) {
+                            race.participants.splice(participantIds.indexOf(JSON.stringify(req.params.idParticipant)), 1);
                             race.save(function (err, race) {
                                 if (err) {
                                     return handleError(req, res, 500, err);
                                 } else {
                                     removeUserLocations(req.params.idParticipant, locationIds);
                                     raceChanged(race._id);
+                                    res.status(200);
+                                    return res.json(race);
                                 }
                             });
-                            res.status(200);
-                            res.json(race);
                         }
+
+                        res.status(404);
+                        res.json(race);
                     }
                     else {
                         res.status(403);
@@ -329,14 +362,16 @@ function removeParticipant(req, res) {
                             } else {
                                 removeUserLocations(req.user._id, locationIds);
                                 raceChanged(race._id);
+                                res.status(200);
+                                res.json(race);
                             }
                         });
+                    } else {
+                        res.status(404);
+                        res.json(race);
                     }
-                    res.status(200);
-                    res.json(race);
                 }
             }
-        }
     });
 }
 
@@ -392,19 +427,20 @@ function addLocation(req, res) {
     Race.findById(req.params.id)
         .populate('locations.location')
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+                return res.json({ message: "Race niet gevonden" });
+            } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
-            }
-            else {
+            } else {
                 if (race.locations.indexOf(req.params.idLocation) == -1) {
                     race.locations.push({orderPosition: req.body.orderPosition, location: location});
                     race.save(function (err, newRace) {
@@ -419,7 +455,6 @@ function addLocation(req, res) {
                 }
 
             }
-        }
     });
 }
 
@@ -428,19 +463,20 @@ function removeLocation(req, res) {
     Race.findById(req.params.id)
         .populate('locations.location')
         .exec(function (err, race) {
-        if (err) {
-            return handleError(req, res, 500, err);
-        }
-        else {
-            if (!race) {
+            if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
+                return handleError(req, res, 500, err);
+            } else if (!race) {
                 res.status(404);
-                res.json({status: 404, message: "Race niet gevonden"});
-            }
-            else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
+                return res.json({ message: "Race niet gevonden" });
+            } else if (race.owners.indexOf(req.user._id) == -1 && req.user.roles.indexOf("admin") == -1) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
-            }
-            else {
+            } else {
 
                 for (var i = 0; i < race.locations.length; i++) {
                     if (race.locations[i]._id == req.params.idLocation) {
@@ -465,7 +501,6 @@ function removeLocation(req, res) {
                 res.status(200);
                 res.json(race);
             }
-        }
     });
 }
 
@@ -490,9 +525,16 @@ function addLocationToVisitedLocations(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
+                if (err.kind == "ObjectId") {
+                    // ObjectId cast failed, meaning the race doesn't exist.
+                    res.status(404);
+                    return res.json({ message: "Race niet gevonden" });
+                }
                 return handleError(req, res, 500, err);
-            }
-            else {
+            } else if (!race) {
+                res.status(404);
+                return res.json({ message: "Race niet gevonden" });
+            } else {
                 var now = new Date();
                 var raceStart = new Date(race.startTime);
                 var raceEnd = new Date(race.endTime);
@@ -600,7 +642,7 @@ function raceChanged(raceId) {
         .populate("owners")
         .populate("locations.location")
         .exec(function (err, race) {
-            if (err) {
+            if (err || !race) {
                 console.log("Error loading race " + raceId);
                 console.log(err);
             } else {
