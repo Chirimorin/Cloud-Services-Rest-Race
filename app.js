@@ -42,6 +42,7 @@ app.io = io;
 var routes = require('./routes/index')(passport);
 var users = require('./routes/users')(mongoose, passport, roles, handleError);
 var races = require('./routes/races')(mongoose, handleError, io);
+var data = require('./routes/data')(mongoose);
 var locations = require('./routes/locations')(mongoose, handleError);
 var session   = require('express-session');
 
@@ -85,6 +86,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/races', races);
 app.use('/locations', locations);
+app.use('/data', data);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

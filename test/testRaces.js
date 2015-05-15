@@ -8,7 +8,7 @@ var User = require('mongoose').model('User');
 function getRequest(route, statusCode, done) {
 	request(app)
 		.get(route)
-		.set('Accept',  'application/json')
+		.set('Accept', 'application/json')
 		.expect(statusCode)
 		.end(function(err, res) {
 			if(err){ return done(err); }
@@ -81,7 +81,9 @@ describe('Testing races route', function() {
 		it('should return 5 races', function(done) {
 			getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
-				
+
+                console.log(res.body);
+
 				expect(res.body).to.not.be.undefined;
 				expect(res.body).to.have.length(5);
 					
@@ -97,7 +99,7 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			getRequest('/races/4edd40c86762e0fb12000001', 302, function(err, res) { // Id race1
+			getRequest('/races/300000000000000000000001', 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
@@ -105,7 +107,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when logged in', function(done) {
-			getRequest('/races/4edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
+			getRequest('/races/300000000000000000000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -113,11 +115,11 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return a race', function(done) {
-			getRequest('/races/4edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
+			getRequest('/races/300000000000000000000001?apikey=test', 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body._id).to.equal("4edd40c86762e0fb12000001"); // Id race1
+				expect(res.body._id).to.equal("300000000000000000000001"); // Id race1
 					
 				done();
 			});	
@@ -132,7 +134,7 @@ describe('Testing races route', function() {
 		});
 
         it('should return 404 when race does not exist', function(done) { // AuthKey user1
-            getRequest('/races/4edd40c86762ebfb12000003?apikey=test', 404, function(err, res) {
+            getRequest('/races/800000000000000000000001?apikey=test', 404, function(err, res) {
                 if(err){ return done(err); }
 
                 done();
@@ -220,14 +222,14 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/4edd40c86762e0fb12000001', race, 302, function(err, res) { // Id race1
+			putRequest('/races/300000000000000000000001', race, 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 400 when race does not exist', function(done) {
+		it('should return 404 when objectId is invalid', function(done) {
 			var race = {
 				name: "Race 1 Aangepast",
 				hasSpecificOrder: true,
@@ -235,12 +237,27 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/blabla?apikey=test2', race, 400, function(err, res) { // AuthKey user2 (geen owner)
+			putRequest('/races/blabla?apikey=test2', race, 404, function(err, res) { // AuthKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            var race = {
+                name: "Race 1 Aangepast",
+                hasSpecificOrder: true,
+                startTime: new Date(2015, 5, 13, 20, 0, 0, 0),
+                endTime: new Date(2015, 5, 14, 30, 0, 0),
+                private: false
+            };
+            putRequest('/races/800000000000000000000001?apikey=test2', race, 404, function(err, res) { // AuthKey user2 (geen owner)
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
 			var race = {
@@ -250,7 +267,7 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/4edd40c86762e0fb12000001?apikey=test2', race, 403, function(err, res) { // Id race1, authKey user2 (geen owner)
+			putRequest('/races/300000000000000000000001?apikey=test2', race, 403, function(err, res) { // Id race1, authKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
@@ -265,7 +282,7 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/4edd40c86762e0fb12000001?apikey=test', race, 200, function(err, res) { // Id race1, authKey user1 (owner)
+			putRequest('/races/300000000000000000000001?apikey=test', race, 200, function(err, res) { // Id race1, authKey user1 (owner)
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -283,7 +300,7 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/4edd40c86762e0fb12000002?apikey=admin', race, 200, function(err, res) { // Id race2, authKey admin
+			putRequest('/races/300000000000000000000002?apikey=admin', race, 200, function(err, res) { // Id race2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -301,23 +318,31 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000004', 302, function(err, res) { // Id race4
+			deleteRequest('/races/300000000000000000000004', 302, function(err, res) { // Id race4
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
+		it('should return 404 when objectId is invalid', function(done) {
 			deleteRequest('/races/blabla?apikey=test2', 404, function(err, res) { // AuthKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
 			});			
-		});
+		})
+
+        it('should return 404 when race does not exist', function(done) {
+            deleteRequest('/races/800000000000000000000004?apikey=test2', 404, function(err, res) { // AuthKey user2 (geen owner)
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000004?apikey=test2', 403, function(err, res) { // Id race4, authKey user2 (geen owner)
+			deleteRequest('/races/300000000000000000000004?apikey=test2', 403, function(err, res) { // Id race4, authKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
@@ -325,22 +350,22 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000004?apikey=test', 200, function(err, res) { // Id race4, authKey user1 (owner)
+			deleteRequest('/races/300000000000000000000004?apikey=test', 200, function(err, res) { // Id race4, authKey user1 (owner)
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body._id).to.equal("4edd40c86762e0fb12000004"); // Id race4
+				expect(res.body._id).to.equal("300000000000000000000004"); // Id race4
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000005?apikey=admin', 200, function(err, res) { // Id race5, authKey admin
+			deleteRequest('/races/300000000000000000000005?apikey=admin', 200, function(err, res) { // Id race5, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body._id).to.equal("4edd40c86762e0fb12000005"); // Id race5
+				expect(res.body._id).to.equal("300000000000000000000005"); // Id race5
 				
 				done();
 			});			
@@ -354,23 +379,31 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2', null, 302, function(err, res) { // Id race1, id user2
+			putRequest('/races/300000000000000000000001/owner/100000000000000000000003', null, 302, function(err, res) { // Id race1, id user2
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
-			putRequest('/races/blabla/owner/555111e9e6051ea818f936e2?apikey=test3', null, 404, function(err, res) { // Id user2, authkKey user3
+		it('should return 404 when objectId is invalid', function(done) {
+			putRequest('/races/blabla/owner/100000000000000000000003?apikey=test3', null, 404, function(err, res) { // Id user2, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            putRequest('/races/800000000000000000000001/owner/100000000000000000000003?apikey=test3', null, 404, function(err, res) { // Id user2, authkKey user3
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2?apikey=test3', null, 403, function(err, res) { // Id race1, id user2, authkKey user3
+			putRequest('/races/300000000000000000000001/owner/100000000000000000000003?apikey=test3', null, 403, function(err, res) { // Id race1, id user2, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -378,24 +411,24 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000001/owner/555111e9e6051ea818f936e2?apikey=test', null, 200, function(err, res) { // Id race1, id user2, authkKey user1
+			putRequest('/races/300000000000000000000001/owner/100000000000000000000003?apikey=test', null, 200, function(err, res) { // Id race1, id user2, authkKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(3);
-				expect(res.body.owners).to.include("555111e9e6051ea818f936e2"); // Id user2
+				expect(res.body.owners).to.include("100000000000000000000003"); // Id user2
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000002/owner/555111e9e6051ea818f936e2?apikey=admin', null, 200, function(err, res) { // Id race2, id user2, authKey admin
+			putRequest('/races/300000000000000000000002/owner/100000000000000000000003?apikey=admin', null, 200, function(err, res) { // Id race2, id user2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(3);
-				expect(res.body.owners).to.include("555111e9e6051ea818f936e2"); // Id user2
+				expect(res.body.owners).to.include("100000000000000000000003"); // Id user2
 				
 				done();
 			});			
@@ -409,23 +442,31 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004', 302, function(err, res) { // Id race1, id user4
+			deleteRequest('/races/300000000000000000000001/owner/100000000000000000000005', 302, function(err, res) { // Id race1, id user4
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
-			deleteRequest('/races/blabla/owner/5edd40c86762e0fb12000004?apikey=test3', 404, function(err, res) { // Id user4, authkKey user3
+		it('should return 404 when objectId is invalid', function(done) {
+			deleteRequest('/races/blabla/owner/100000000000000000000005?apikey=test3', 404, function(err, res) { // Id user4, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            deleteRequest('/races/800000000000000000000001/owner/100000000000000000000005?apikey=test3', 404, function(err, res) { // Id user4, authkKey user3
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004?apikey=test3', 403, function(err, res) { // Id race1, id user4, authkKey user3
+			deleteRequest('/races/300000000000000000000001/owner/100000000000000000000005?apikey=test3', 403, function(err, res) { // Id race1, id user4, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -433,24 +474,24 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/owner/5edd40c86762e0fb12000004?apikey=test', 200, function(err, res) { // Id race1, id user4, authkKey user1
+			deleteRequest('/races/300000000000000000000001/owner/100000000000000000000005?apikey=test', 200, function(err, res) { // Id race1, id user4, authkKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(1);
-				expect(res.body.owners).to.not.include("5edd40c86762e0fb12000004"); // Id user4
+				expect(res.body.owners).to.not.include("100000000000000000000005"); // Id user4
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000002/owner/5edd40c86762e0fb12000004?apikey=admin', 200, function(err, res) { // Id race2, id user4, authKey admin
+			deleteRequest('/races/300000000000000000000002/owner/100000000000000000000005?apikey=admin', 200, function(err, res) { // Id race2, id user4, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.owners).to.have.length(1);
-				expect(res.body.owners).to.not.include("5edd40c86762e0fb12000004"); // Id user4
+				expect(res.body.owners).to.not.include("100000000000000000000005"); // Id user4
 				
 				done();
 			});			
@@ -464,7 +505,7 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000001/participant', null, 302, function(err, res) { // Id race1
+			putRequest('/races/300000000000000000000001/participant', null, 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
@@ -478,9 +519,17 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            putRequest('/races/800000000000000000000001/participant?apikey=test', null, 404, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 200 when logged in', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000001/participant?apikey=test', null, 200, function(err, res) { // Id race1, authKey user1
+			putRequest('/races/300000000000000000000001/participant?apikey=test', null, 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -488,12 +537,12 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return race with 1 participant', function(done) {
-			putRequest('/races/4edd40c86762e0fb12000002/participant?apikey=test', null, 200, function(err, res) { // Id race2, authKey user1
+			putRequest('/races/300000000000000000000002/participant?apikey=test', null, 200, function(err, res) { // Id race2, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.participants).to.have.length(2);
-				expect(res.body.participants).to.include("5edd40c86762e0fb12000001"); // Id user1
+				expect(res.body.participants).to.include("100000000000000000000002"); // Id user1
 				
 				done();
 			});			
@@ -507,23 +556,31 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/participant', 302, function(err, res) { // Id race1
+			deleteRequest('/races/300000000000000000000001/participant', 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
+		it('should return 404 when objectId is invalid', function(done) {
 			deleteRequest('/races/blabla/participant?apikey=test', 404, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            deleteRequest('/races/800000000000000000000001/participant?apikey=test', 404, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 200 when logged in (without idParticipant)', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/participant?apikey=test', 200, function(err, res) { // Id race1, authKey user1
+			deleteRequest('/races/300000000000000000000001/participant?apikey=test', 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -535,7 +592,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000002/participant/5edd40c86762e0fb12000002?apikey=test3', 403, function(err, res) { // Id race1, id user2, authKey user3
+			deleteRequest('/races/300000000000000000000001/participant/100000000000000000000003?apikey=test3', 403, function(err, res) { // Id race1, id user2, authKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -543,24 +600,24 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000002/participant/5edd40c86762e0fb12000002?apikey=test', 200, function(err, res) { // Id race2, id user2, authKey user1
+			deleteRequest('/races/300000000000000000000002/participant/100000000000000000000003?apikey=test', 200, function(err, res) { // Id race2, id user2, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.participants).to.have.length(0);
-				expect(res.body.participants).to.not.include("5edd40c86762e0fb12000002"); // Id user2
+				expect(res.body.participants).to.not.include("100000000000000000000003"); // Id user2
 				
 				done();
 			});			
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000003/participant/5edd40c86762e0fb12000002?apikey=admin', 200, function(err, res) { // Id race3, id user2, authKey admin
+			deleteRequest('/races/300000000000000000000003/participant/100000000000000000000003?apikey=admin', 200, function(err, res) { // Id race3, id user2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
 				expect(res.body.participants).to.have.length(0);
-				expect(res.body.participants).to.not.include("5edd40c86762e0fb12000002"); // Id user2
+				expect(res.body.participants).to.not.include("100000000000000000000003"); // Id user2
 				
 				done();
 			});			
@@ -582,14 +639,14 @@ describe('Testing races route', function() {
 					distance: 3.0
 				}
 			};
-			postRequest('/races/4edd40c86762e0fb12000001/location', waypoint, 302, function(err, res) { // Id race1
+			postRequest('/races/300000000000000000000001/location', waypoint, 302, function(err, res) { // Id race1
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
+		it('should return 404 when objectId is invalid', function(done) {
 			var waypoint = { 
 				location: {
 					name: "Location 3",
@@ -604,6 +661,22 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            var waypoint = {
+                location: {
+                    name: "Location 3",
+                    lat: 1.0,
+                    long: 2.0,
+                    distance: 3.0
+                }
+            };
+            postRequest('/races/800000000000000000000001/location?apikey=test3', waypoint, 404, function(err, res) { // AuthKey user3
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
 			var waypoint = { 
@@ -614,7 +687,7 @@ describe('Testing races route', function() {
 					distance: 3.0
 				}
 			};
-			postRequest('/races/4edd40c86762e0fb12000001/location?apikey=test3', waypoint, 403, function(err, res) { // Id race1, authKey user3
+			postRequest('/races/300000000000000000000001/location?apikey=test3', waypoint, 403, function(err, res) { // Id race1, authKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -630,7 +703,7 @@ describe('Testing races route', function() {
 					distance: 3.0
 				}
 			};
-			postRequest('/races/4edd40c86762e0fb12000001/location?apikey=test', waypoint, 200, function(err, res) { // Id race1, authKey user1
+			postRequest('/races/300000000000000000000001/location?apikey=test', waypoint, 200, function(err, res) { // Id race1, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -649,7 +722,7 @@ describe('Testing races route', function() {
 					distance: 3.0
 				}
 			};
-			postRequest('/races/4edd40c86762e0fb12000002/location?apikey=admin', waypoint, 200, function(err, res) { // Id race2, authKey admin
+			postRequest('/races/300000000000000000000002/location?apikey=admin', waypoint, 200, function(err, res) { // Id race2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -667,7 +740,7 @@ describe('Testing races route', function() {
 		getRequest('/data', 200, function(err, res) {});
 		
 		it('should return 302 when not logged in', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001', 302, function(err, res) { // Id race1, Id waypoint location1 bij race1
+			deleteRequest('/races/300000000000000000000001/location/200000000000000000000011', 302, function(err, res) { // Id race1, Id waypoint location1 bij race1
 				if(err){ return done(err); }
 				
 				done();
@@ -675,7 +748,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 404 when race does not exist', function(done) {
-			deleteRequest('/races/blabla/location/7edd40c86762e0fb12000001?apikey=test3', 404, function(err, res) { // Id waypoint location1 bij race1, authKey user3
+			deleteRequest('/races/blabla/location/200000000000000000000011?apikey=test3', 404, function(err, res) { // Id waypoint location1 bij race1, authKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -683,7 +756,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001?apikey=test3', 403, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user3
+			deleteRequest('/races/300000000000000000000001/location/200000000000000000000011?apikey=test3', 403, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -691,7 +764,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is owner', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000001/location/7edd40c86762e0fb12000001?apikey=test', 200, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user1
+			deleteRequest('/races/300000000000000000000001/location/200000000000000000000011?apikey=test', 200, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user1
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
@@ -702,7 +775,7 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			deleteRequest('/races/4edd40c86762e0fb12000002/location/7edd40c86762e0fb12000003?apikey=admin', 200, function(err, res) { // Id race2, id waypoint location1 bij race2, authKey admin
+			deleteRequest('/races/300000000000000000000002/location/200000000000000000000021?apikey=admin', 200, function(err, res) { // Id race2, id waypoint location1 bij race2, authKey admin
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
