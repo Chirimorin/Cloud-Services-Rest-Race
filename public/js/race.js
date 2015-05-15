@@ -37,7 +37,7 @@ $(document).ready(function() {
 
 
     toonLocaties(selectedRace);
-    toonDeelnemers(selectedRace);
+    toonRaceInfo(selectedRace);
 
     $("#btn_locatieToevoegen").on("click", function() {
         locatieToevoegen();
@@ -85,7 +85,7 @@ $(document).ready(function() {
 
     socket.on("userCheckedIn", function(msg) {
         console.log(msg);
-        toonDeelnemers(msg);
+        toonRaceInfo(msg);
     })
 
     socket.on("joinRoom", function(msg) {
@@ -96,7 +96,7 @@ $(document).ready(function() {
 
 });
 
-function toonDeelnemers(race) {
+function toonRaceInfo(race) {
     var displayString = "";
     if (race.participants.length == 0) {
         displayString = '<li class="list-group-item"><strong>Nog geen deelnemers.</strong></li>';
@@ -109,7 +109,7 @@ function toonDeelnemers(race) {
             var participant = race.participants[i];
             displayString +=    '<li class="list-group-item">' +
                                     '<span class="badge">' +
-                                        participant.visitedLocations.length + " / " + race.locations.length + " checkpoints" +
+                                        (participant.visitedLocations ? participant.visitedLocations.length : "") + " / " + race.locations.length + " checkpoints" +
                                     '</span>' +
                                     '<span class="position">#' +
                                         (i+1) +
@@ -122,14 +122,38 @@ function toonDeelnemers(race) {
     }
 
     $("#racesList").html(displayString);
+
+    participantIds = race.participants.map(function(e) { return JSON.stringify(e._id); });
+
+    console.log("userId: " + userId);
+    console.log("participantIds: " + participantIds);
+
+    if (participantIds.indexOf(JSON.stringify(userId)) == -1) {
+        $("#joinRace").removeClass("hidden");
+        $("#leaveRace").addClass("hidden");
+    } else {
+        $("#joinRace").addClass("hidden");
+        $("#leaveRace").removeClass("hidden");
+    }
 }
 
 function compareParticipants(a, b) {
+    var visitedA = 0;
+    var visitedB = 0;
+
+    if (a.visitedLocations) {
+        visitedA = a.visitedLocations.length;
+    }
+
+    if (b.visitedLocations) {
+        visitedB = b.visitedLocations.length;
+    }
+
     // First try sorting by the amount of visited locations.
-    if (a.visitedLocations.length > b.visitedLocations.length) {
+    if (visitedA >visitedB) {
         // More locations visited is a better score.
         return -1;
-    } else if (a.visitedLocations.length < b.visitedLocations.length) {
+    } else if (visitedA < visitedB) {
         // Less locations visited is a worse score.
         return 1;
     } else {
@@ -140,13 +164,15 @@ function compareParticipants(a, b) {
             // Start with 1 jan 1970. Any valid checked in date will be bigger.
             var date = new Date(0);
 
-            for (i = 0; i < locations.length; i++) {
-                // Make a date object for comparing
-                var checkIn = new Date(locations[i].time);
+            if (locations) {
+                for (i = 0; i < locations.length; i++) {
+                    // Make a date object for comparing
+                    var checkIn = new Date(locations[i].time);
 
-                // If this date is later than the current, replace it.
-                if (checkIn > date) {
-                    date = checkIn;
+                    // If this date is later than the current, replace it.
+                    if (checkIn > date) {
+                        date = checkIn;
+                    }
                 }
             }
 
@@ -240,7 +266,6 @@ function getRace(race_id) {
         dataType: "json",
         success: function(data) {
             toonLocaties(data);
-            toonDeelnemers(data);
         }
     });
 }
@@ -272,7 +297,6 @@ function joinRace() {
         dataType: "json",
         success: function(data) {
             toonLocaties(data);
-            toonDeelnemers(data);
         }
     });
 }
@@ -287,7 +311,6 @@ function leaveRace() {
         dataType: "json",
         success: function(data) {
             toonLocaties(data);
-            toonDeelnemers(data);
         }
     });
 }
