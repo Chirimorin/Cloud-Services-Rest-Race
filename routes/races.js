@@ -110,7 +110,9 @@ function updateRaceByID(req, res) {
     var endTime;
     typeof req.body.endTime != "undefined" ? endTime = req.body.endTime : endTime = null;
 
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate('locations.location')
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -169,7 +171,9 @@ function deleteRaceByID(req, res) {
 
 // Add owner to a race
 function addOwner(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate('locations.location')
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -202,7 +206,9 @@ function addOwner(req, res) {
 
 // Remove owner from a race
 function removeOwner(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate('locations.location')
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -419,7 +425,9 @@ function addLocation(req, res) {
 
 // Remove location from a race
 function removeLocation(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate('locations.location')
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
