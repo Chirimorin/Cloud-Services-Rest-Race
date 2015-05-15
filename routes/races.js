@@ -63,8 +63,13 @@ function getRaceByID(req, res) {
             res.status(200);
             if (req.accepts('text/html')) {
                 var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
+                var participantIds = race.participants.map(function(e) { return JSON.stringify(e._id) });
+
                 var isOwner = (ownerIds.indexOf(JSON.stringify(req.user._id)) != -1 || req.user.roles.indexOf("admin") != -1);
-                return res.render('race', { "race": race, "isOwner": isOwner });
+                var isParticipant = (participantIds.indexOf(JSON.stringify(req.user._id)) != -1);
+
+                console.log("User " + req.user._id + " " + (isOwner ? "is an owner " : "") + (isParticipant ? "is a participant" : "") + (!isOwner && !isParticipant ? "Is neither owner or participant" : ""));
+                return res.render('race', { "race": race, "isOwner": isOwner, "isParticipant": isParticipant, "userId": req.user._id });
             }
             else
                 return res.json(race);
@@ -127,6 +132,8 @@ function updateRaceByID(req, res) {
                 race.save(function (err, race) {
                     if (err) {
                         return handleError(req, res, 500, err);
+                    } else {
+                        raceChanged(race._id);
                     }
                 });
                 res.status(200);
@@ -181,6 +188,8 @@ function addOwner(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -212,6 +221,8 @@ function removeOwner(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -254,10 +265,9 @@ function addParticipant(req, res) {
                     console.log(race);
                     race.save(function (err, race) {
                         if (err) {
-                            console.log("Error saving race");
-                            console.log("User id: " + req.user._id);
                             return handleError(req, res, 500, err);
                         } else {
+                            raceChanged(race._id);
                             res.status(200);
                             return res.json(race);
                         }
@@ -273,7 +283,9 @@ function addParticipant(req, res) {
 
 // Remove participant from a race
 function removeParticipant(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate("locations.location")
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -289,6 +301,8 @@ function removeParticipant(req, res) {
                         race.save(function (err, race) {
                             if (err) {
                                 return handleError(req, res, 500, err);
+                            } else {
+                                raceChanged(race._id);
                             }
                         });
                         res.status(200);
@@ -306,6 +320,8 @@ function removeParticipant(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -361,6 +377,7 @@ function addLocation(req, res) {
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
+                            raceChanged(race._id);
                             res.status(200);
                             res.json(newRace);
                         }
@@ -398,6 +415,8 @@ function removeLocation(req, res) {
                 race.save(function (err, race) {
                     if (err) {
                         return handleError(req, res, 500, err);
+                    } else {
+                        raceChanged(race._id);
                     }
                 });
 
@@ -514,8 +533,9 @@ function addLocationToVisitedLocations(req, res) {
                                     .populate("locations.location")
                                     .exec(function (err, newRace){
                                         if (!err) {
-                                            filterLocations(newRace);
-                                            IO.to(req.params.id).emit("userCheckedIn", newRace);
+                                            raceChanged(newRace._id);
+                                            //filterLocations(newRace);
+                                            //IO.to(req.params.id).emit("userCheckedIn", newRace);
                                         }
                                         return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
                                     });
@@ -532,16 +552,24 @@ function addLocationToVisitedLocations(req, res) {
 function testSocket(req, res) {
     console.log("Sending test socket msg")
 
-    Race.findById(req.params.id)
+    raceChanged(req.params.id);
+    return res.json("sending socket message...");
+}
+
+function raceChanged(raceId) {
+    console.log("Race " + raceId + " changed");
+
+    Race.findById(raceId)
         .populate("participants")
+        .populate("owners")
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
-                return handleError(req, res, 500, err);
+                console.log("Error loading race " + raceId);
+                console.log(err);
             } else {
                 race = filterLocations(race);
-                IO.to(req.params.id).emit("userCheckedIn", race);
-                return res.json({ message: "Socket message sent!", race: race });
+                IO.to(raceId).emit("userCheckedIn", race);
             }
         });
 }

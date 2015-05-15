@@ -79,6 +79,7 @@ $(document).ready(function() {
 
     $("#deleteRace").click(raceVerwijderen);
     $("#joinRace").click(joinRace);
+    $("#leaveRace").click(leaveRace);
 
     var socket = io();
 
@@ -264,6 +265,21 @@ function raceVerwijderen() {
 function joinRace() {
     $.ajax({
         type: "PUT",
+        url: "/races/" + selectedRace._id + "/participant?apikey=a",
+        headers: {
+            Accept: "application/json"
+        },
+        dataType: "json",
+        success: function(data) {
+            toonLocaties(data);
+            toonDeelnemers(data);
+        }
+    });
+}
+
+function leaveRace() {
+    $.ajax({
+        type: "DELETE",
         url: "/races/" + selectedRace._id + "/participant?apikey=a",
         headers: {
             Accept: "application/json"
