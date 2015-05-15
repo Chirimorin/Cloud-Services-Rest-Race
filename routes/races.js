@@ -63,8 +63,13 @@ function getRaceByID(req, res) {
             res.status(200);
             if (req.accepts('text/html')) {
                 var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
+                var participantIds = race.participants.map(function(e) { return JSON.stringify(e._id) });
+
                 var isOwner = (ownerIds.indexOf(JSON.stringify(req.user._id)) != -1 || req.user.roles.indexOf("admin") != -1);
-                return res.render('race', { "race": race, "isOwner": isOwner });
+                var isParticipant = (participantIds.indexOf(JSON.stringify(req.user._id)) != -1);
+
+                console.log("User " + req.user._id + " " + (isOwner ? "is an owner " : "") + (isParticipant ? "is a participant" : "") + (!isOwner && !isParticipant ? "Is neither owner or participant" : ""));
+                return res.render('race', { "race": race, "isOwner": isOwner, "isParticipant": isParticipant, "userId": req.user._id });
             }
             else
                 return res.json(race);
@@ -127,6 +132,8 @@ function updateRaceByID(req, res) {
                 race.save(function (err, race) {
                     if (err) {
                         return handleError(req, res, 500, err);
+                    } else {
+                        raceChanged(race._id);
                     }
                 });
                 res.status(200);
@@ -181,6 +188,8 @@ function addOwner(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -212,6 +221,8 @@ function removeOwner(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -224,8 +235,11 @@ function removeOwner(req, res) {
 
 // Add participant to a race
 function addParticipant(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate("locations.location")
+        .exec(function (err, race) {
         if (err) {
+            Console.log("Error loading race");
             return handleError(req, res, 500, err);
         }
         else {
@@ -247,11 +261,16 @@ function addParticipant(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
+                            res.status(200);
+                            return res.json(race);
                         }
                     });
+                } else {
+                    res.status(200);
+                    return res.json(race);
                 }
-                res.status(200);
-                res.json(race);
             }
         }
     });
@@ -259,7 +278,9 @@ function addParticipant(req, res) {
 
 // Remove participant from a race
 function removeParticipant(req, res) {
-    Race.findById(req.params.id, function (err, race) {
+    Race.findById(req.params.id)
+        .populate("locations.location")
+        .exec(function (err, race) {
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -275,6 +296,8 @@ function removeParticipant(req, res) {
                         race.save(function (err, race) {
                             if (err) {
                                 return handleError(req, res, 500, err);
+                            } else {
+                                raceChanged(race._id);
                             }
                         });
                         res.status(200);
@@ -292,6 +315,8 @@ function removeParticipant(req, res) {
                     race.save(function (err, race) {
                         if (err) {
                             return handleError(req, res, 500, err);
+                        } else {
+                            raceChanged(race._id);
                         }
                     });
                 }
@@ -347,6 +372,7 @@ function addLocation(req, res) {
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
+                            raceChanged(race._id);
                             res.status(200);
                             res.json(newRace);
                         }
@@ -384,6 +410,8 @@ function removeLocation(req, res) {
                 race.save(function (err, race) {
                     if (err) {
                         return handleError(req, res, 500, err);
+                    } else {
+                        raceChanged(race._id);
                     }
                 });
 
@@ -500,8 +528,9 @@ function addLocationToVisitedLocations(req, res) {
                                     .populate("locations.location")
                                     .exec(function (err, newRace){
                                         if (!err) {
-                                            filterLocations(newRace);
-                                            IO.to(req.params.id).emit("userCheckedIn", newRace);
+                                            raceChanged(newRace._id);
+                                            //filterLocations(newRace);
+                                            //IO.to(req.params.id).emit("userCheckedIn", newRace);
                                         }
                                         return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
                                     });
@@ -518,16 +547,24 @@ function addLocationToVisitedLocations(req, res) {
 function testSocket(req, res) {
     console.log("Sending test socket msg")
 
-    Race.findById(req.params.id)
+    raceChanged(req.params.id);
+    return res.json("sending socket message...");
+}
+
+function raceChanged(raceId) {
+    console.log("Race " + raceId + " changed");
+
+    Race.findById(raceId)
         .populate("participants")
+        .populate("owners")
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
-                return handleError(req, res, 500, err);
+                console.log("Error loading race " + raceId);
+                console.log(err);
             } else {
                 race = filterLocations(race);
-                IO.to(req.params.id).emit("userCheckedIn", race);
-                return res.json({ message: "Socket message sent!", race: race });
+                IO.to(raceId).emit("raceChanged", race);
             }
         });
 }
@@ -565,13 +602,14 @@ function deg2rad(deg) {
 }
 
 function filterLocations(race) {
+    // Make sure no false references are present in the race.
+    race = cleanupRace(race);
+
     if (race) {
         if (race.locations) {
             // Map all location Ids that are part of this race.
             var locationIds = race.locations.map(function (e) {
-                if (e.location) {
-                    return e.location._id
-                }
+                return e.location._id
             });
 
             // Loop through every participant to check visitedLocations
@@ -602,6 +640,68 @@ function filterLocations(race) {
     }
 
     return race;
+}
+
+function cleanupRace(race) {
+    // This functions clears all wrong references.
+
+    if (race) {
+        var edited = false;
+
+        if (race.locations) {
+            for (i = race.locations.length-1; i >= 0; i--) {
+                if (!race.locations[i].location) {
+                    console.log("Race location at index " + i + " is null. Removing it...");
+                    race.locations.splice(i, 1);
+                    edited = true;
+                }
+            }
+        }
+
+        if (race.participants) {
+            for (i = race.participants.length-1; i >= 0; i--) {
+                var participant = race.participants[i];
+
+                if (!participant._id) {
+                    // If an _id is present, participants are populated and it exists.
+                    if (participant == "" || participant == null) {
+                        // Empty string is always incorrect.
+                        console.log("Race has empty participant at index " + i);
+                        race.participants.splice(i, 1);
+                        edited = true;
+                    }
+                }
+            }
+        }
+
+        if (race.owners) {
+            for (i = race.owners.length-1; i >= 0; i--) {
+                var owner = race.owners[i];
+
+                if (!owner._id) {
+                    // If an _id is present, participants are populated and it exists.
+                    if (owner == "" || owner == null) {
+                        // Empty string is always incorrect.
+                        console.log("Race has empty owner at index " + i);
+                        race.owners.splice(i, 1);
+                        edited = true;
+                    }
+                }
+            }
+        }
+
+        if (edited) {
+            race.save(function (err, race) {
+                if (err) {
+                    console.log("Failed to save edited race!");
+                } else {
+                    console.log("Successfully removed nonexistant locations from race.");
+                }
+            });
+        }
+
+        return race;
+    }
 }
 
 router.route('/')
