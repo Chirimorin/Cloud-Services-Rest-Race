@@ -123,13 +123,21 @@ describe('Testing races route', function() {
 			});	
 		});
 		
-		it('should return 500 when race is wrong', function(done) { // AuthKey user1
-			getRequest('/races/blabla?apikey=test', 500, function(err, res) {
+		it('should return 404 when race is wrong', function(done) { // AuthKey user1
+			getRequest('/races/blabla?apikey=test', 404, function(err, res) {
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) { // AuthKey user1
+            getRequest('/races/4edd40c86762ebfb12000003?apikey=test', 404, function(err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 	});
 	
@@ -152,13 +160,13 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race data is wrong', function(done) {
+		it('should return 400 when race data is wrong', function(done) {
 			var race = {
 				hasSpecificOrder: false,
 				startTime: new Date(2015, 5, 11, 20, 0, 0, 0),
 				private: false
 			};
-			postRequest('/races?apikey=test', race, 500, function(err, res) { // AuthKey user1
+			postRequest('/races?apikey=test', race, 400, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -219,7 +227,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
+		it('should return 400 when race does not exist', function(done) {
 			var race = {
 				name: "Race 1 Aangepast",
 				hasSpecificOrder: true,
@@ -227,7 +235,7 @@ describe('Testing races route', function() {
 				endTime: new Date(2015, 5, 14, 30, 0, 0),
 				private: false
 			};
-			putRequest('/races/blabla?apikey=test2', race, 500, function(err, res) { // AuthKey user2 (geen owner)
+			putRequest('/races/blabla?apikey=test2', race, 400, function(err, res) { // AuthKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
@@ -300,8 +308,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			deleteRequest('/races/blabla?apikey=test2', 500, function(err, res) { // AuthKey user2 (geen owner)
+		it('should return 404 when race does not exist', function(done) {
+			deleteRequest('/races/blabla?apikey=test2', 404, function(err, res) { // AuthKey user2 (geen owner)
 				if(err){ return done(err); }
 				
 				done();
@@ -353,8 +361,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			putRequest('/races/blabla/owner/555111e9e6051ea818f936e2?apikey=test3', null, 500, function(err, res) { // Id user2, authkKey user3
+		it('should return 404 when race does not exist', function(done) {
+			putRequest('/races/blabla/owner/555111e9e6051ea818f936e2?apikey=test3', null, 404, function(err, res) { // Id user2, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -408,8 +416,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			deleteRequest('/races/blabla/owner/5edd40c86762e0fb12000004?apikey=test3', 500, function(err, res) { // Id user4, authkKey user3
+		it('should return 404 when race does not exist', function(done) {
+			deleteRequest('/races/blabla/owner/5edd40c86762e0fb12000004?apikey=test3', 404, function(err, res) { // Id user4, authkKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -463,8 +471,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			putRequest('/races/blabla/participant?apikey=test', null, 500, function(err, res) { // AuthKey user1
+		it('should return 404 when race does not exist', function(done) {
+			putRequest('/races/blabla/participant?apikey=test', null, 404, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -506,8 +514,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			deleteRequest('/races/blabla/participant?apikey=test', 500, function(err, res) { // AuthKey user1
+		it('should return 404 when race does not exist', function(done) {
+			deleteRequest('/races/blabla/participant?apikey=test', 404, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
 				
 				done();
@@ -581,7 +589,7 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
+		it('should return 404 when race does not exist', function(done) {
 			var waypoint = { 
 				location: {
 					name: "Location 3",
@@ -590,7 +598,7 @@ describe('Testing races route', function() {
 					distance: 3.0
 				}
 			};
-			postRequest('/races/blabla/location?apikey=test3', waypoint, 500, function(err, res) { // AuthKey user3
+			postRequest('/races/blabla/location?apikey=test3', waypoint, 404, function(err, res) { // AuthKey user3
 				if(err){ return done(err); }
 				
 				done();
@@ -666,8 +674,8 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 500 when race does not exist', function(done) {
-			deleteRequest('/races/blabla/location/7edd40c86762e0fb12000001?apikey=test3', 500, function(err, res) { // Id waypoint location1 bij race1, authKey user3
+		it('should return 404 when race does not exist', function(done) {
+			deleteRequest('/races/blabla/location/7edd40c86762e0fb12000001?apikey=test3', 404, function(err, res) { // Id waypoint location1 bij race1, authKey user3
 				if(err){ return done(err); }
 				
 				done();
