@@ -259,7 +259,7 @@ function removeOwner(req, res) {
                     });
                 } else {
                     res.status(404);
-                    res.json(race);
+                    res.json({ message: "Gebruiker is geen eigenaar van deze race." });
                 }
             }
     });
@@ -330,9 +330,12 @@ function removeParticipant(req, res) {
 
                 if (req.params.idParticipant) {
                     if (race.owners.indexOf(req.user._id) != -1 || req.user.roles.indexOf("admin") != -1) {
-                        var participantIds = race.participants.map(function(e) { return JSON.stringify(e) });
-                        if (participantIds.indexOf(JSON.stringify(req.params.idParticipant)) != -1) {
-                            race.participants.splice(participantIds.indexOf(JSON.stringify(req.params.idParticipant)), 1);
+                        console.log("Owner/admin participant removal.");
+                        console.log("idParticipant: " + req.params.idParticipant);
+                        console.log("participants: " + race.participants);
+
+                        if (race.participants.indexOf(req.params.idParticipant) != -1) {
+                            race.participants.splice(race.participants.indexOf(req.params.idParticipant), 1);
                             race.save(function (err, race) {
                                 if (err) {
                                     return handleError(req, res, 500, err);
@@ -343,17 +346,19 @@ function removeParticipant(req, res) {
                                     return res.json(race);
                                 }
                             });
+                        } else {
+                            res.status(404);
+                            res.json({message: "Deze gebruiker is geen deelnemer in deze race."});
                         }
-
-                        res.status(404);
-                        res.json(race);
-                    }
-                    else {
+                    } else {
                         res.status(403);
                         res.json({status: 403, message: "Forbidden"});
                     }
-                }
-                else {
+                } else {
+                    console.log("user participant removal.");
+                    console.log("idParticipant: " + req.user._id);
+                    console.log("participants: " + race.participants);
+
                     if (race.participants.indexOf(req.user._id) != -1) {
                         race.participants.splice(race.participants.indexOf(req.user._id), 1);
                         race.save(function (err, race) {
@@ -368,7 +373,7 @@ function removeParticipant(req, res) {
                         });
                     } else {
                         res.status(404);
-                        res.json(race);
+                        res.json({ message: "Je bent geen deelnemer in deze race." });
                     }
                 }
             }
@@ -627,13 +632,6 @@ function addLocationToVisitedLocations(req, res) {
         });
 }
 
-function testSocket(req, res) {
-    console.log("Sending test socket msg")
-
-    raceChanged(req.params.id);
-    return res.json("sending socket message...");
-}
-
 function raceChanged(raceId) {
     console.log("Race " + raceId + " changed");
 
@@ -816,9 +814,6 @@ router.route('/:id/location/:idLocation')
 
 router.route('/:id/location/:lat/:long')
     .put(passport.authenticate('authKey', {failureRedirect: '/unauthorized'}), addLocationToVisitedLocations);
-
-router.route('/:id/testSocket')
-    .get(testSocket);
 
 // Export
 module.exports = function (mongoose, errCallback, io) {

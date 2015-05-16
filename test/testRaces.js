@@ -58,9 +58,16 @@ function deleteRequest(route, statusCode, done) {
 describe('Testing races route', function() {
 	
 	describe('Get all races', function() {
-		
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});	
+
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			getRequest('/races', 302, function(err, res) {
@@ -94,9 +101,16 @@ describe('Testing races route', function() {
 	});
 	
 	describe('Get race by ID', function() {
-		
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			getRequest('/races/300000000000000000000001', 302, function(err, res) { // Id race1
@@ -143,10 +157,17 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Add race', function() {		
-	
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+	describe('Add race', function() {
+
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			var race = {
@@ -211,8 +232,15 @@ describe('Testing races route', function() {
 	
 	describe('Update race', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});	
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			var race = {
@@ -312,10 +340,17 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Delete race', function() {	
+	describe('Delete race', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			deleteRequest('/races/300000000000000000000004', 302, function(err, res) { // Id race4
@@ -373,10 +408,17 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Add owner', function() {	
+	describe('Add owner', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			putRequest('/races/300000000000000000000001/owner/100000000000000000000003', null, 302, function(err, res) { // Id race1, id user2
@@ -438,8 +480,15 @@ describe('Testing races route', function() {
 	
 	describe('Remove owner', function() {		
 	
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+		// Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			deleteRequest('/races/300000000000000000000001/owner/100000000000000000000005', 302, function(err, res) { // Id race1, id user4
@@ -499,10 +548,17 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Add participant', function() {	
+	describe('Add participant', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			putRequest('/races/300000000000000000000001/participant', null, 302, function(err, res) { // Id race1
@@ -550,10 +606,17 @@ describe('Testing races route', function() {
 		
 	});
 	
-	describe('Remove participant', function() {	
+	describe('Remove participant', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			deleteRequest('/races/300000000000000000000001/participant', 302, function(err, res) { // Id race1
@@ -578,14 +641,22 @@ describe('Testing races route', function() {
                 done();
             });
         });
+
+        it('should return 404 when user is not in the race', function(done) {
+            deleteRequest('/races/300000000000000000000001/participant?apikey=test', 404, function(err, res) { // Id race1, authKey user1
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 200 when logged in (without idParticipant)', function(done) {
-			deleteRequest('/races/300000000000000000000001/participant?apikey=test', 200, function(err, res) { // Id race1, authKey user1
+			deleteRequest('/races/300000000000000000000001/participant?apikey=test2', 200, function(err, res) { // Id race1, authKey user2
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body.participants).to.have.length(1);
-				expect(res.body.participants).to.not.include("5edd40c86762e0fb12000001"); // Id user1
+				expect(res.body.participants).to.have.length(0);
+				expect(res.body.participants).to.not.include("100000000000000000000003"); // Id user2
 				
 				done();
 			});			
@@ -598,6 +669,14 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 404 when user is owner but user is not a participant', function(done) {
+            deleteRequest('/races/300000000000000000000002/participant/100000000000000000000002?apikey=test', 404, function(err, res) { // Id race2, id user2, authKey user1
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 200 when user is owner', function(done) {
 			deleteRequest('/races/300000000000000000000002/participant/100000000000000000000003?apikey=test', 200, function(err, res) { // Id race2, id user2, authKey user1
@@ -627,8 +706,15 @@ describe('Testing races route', function() {
 	
 	describe('Add location', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			var waypoint = { 
@@ -736,8 +822,15 @@ describe('Testing races route', function() {
 	
 	describe('Delete location', function() {
 
-		// Reset data in de database
-		getRequest('/data', 200, function(err, res) {});
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function(done) {
+            getRequest('/data', 200, function (err, res) {
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 302 when not logged in', function(done) {
 			deleteRequest('/races/300000000000000000000001/location/200000000000000000000011', 302, function(err, res) { // Id race1, Id waypoint location1 bij race1
@@ -747,13 +840,21 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 404 when race does not exist', function(done) {
+		it('should return 404 when objectId is invalid', function(done) {
 			deleteRequest('/races/blabla/location/200000000000000000000011?apikey=test3', 404, function(err, res) { // Id waypoint location1 bij race1, authKey user3
 				if(err){ return done(err); }
 				
 				done();
 			});			
 		});
+
+        it('should return 404 when race does not exist', function(done) {
+            deleteRequest('/races/800000000000000000000001/location/200000000000000000000011?apikey=test3', 404, function(err, res) { // Id waypoint location1 bij race1, authKey user3
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 		it('should return 403 when user is not owner and not admin', function(done) {
 			deleteRequest('/races/300000000000000000000001/location/200000000000000000000011?apikey=test3', 403, function(err, res) { // Id race1, id waypoint location1 bij race1, authKey user3
@@ -768,7 +869,7 @@ describe('Testing races route', function() {
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body.locations).to.have.length(2);
+				expect(res.body.locations).to.have.length(1);
 				
 				done();
 			});			
@@ -779,7 +880,7 @@ describe('Testing races route', function() {
 				if(err){ return done(err); }
 				
 				expect(res.body).to.not.be.undefined;
-				expect(res.body.locations).to.have.length(2);
+				expect(res.body.locations).to.have.length(1);
 				
 				done();
 			});			
