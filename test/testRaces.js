@@ -132,6 +132,17 @@ describe('Testing races route', function() {
             });
         });
 
+        it('should return 2 public races with pageSize=2 and page=2', function(done) {
+            getRequest('/races?type=public&pageSize=2&page=2&apikey=test', 200, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(2);
+
+                done();
+            });
+        });
+
         it('should return 0 participating races for a non-participating user.', function(done) {
             getRequest('/races?type=participant&apikey=test', 200, function(err, res) { // AuthKey user1
                 if(err){ return done(err); }
@@ -402,7 +413,24 @@ describe('Testing races route', function() {
 
                 done();
             });
-        })
+        });
+
+        it('should return 200 when no end time is given', function(done) {
+            var race = {
+                name: "Race 3 Aangepast",
+                hasSpecificOrder: true,
+                startTime: new Date(2015, 5, 13, 20, 0, 0, 0),
+                private: false
+            };
+            putRequest('/races/300000000000000000000003?apikey=test', race, 200, function(err, res) { // Id race3, authKey user1 (owner)
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.name).to.equal("Race 3 Aangepast");
+
+                done();
+            });
+        });
 
         it('should return 400 when data is invalid', function(done) {
             var race = {
@@ -638,6 +666,18 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 404 when given user is not an owner', function(done) {
+            deleteRequest('/races/300000000000000000000001/owner/100000000000000000000005?apikey=test', 404, function(err, res) { // Id race1, id user4, authkKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.message).to.equal("Gebruiker is geen eigenaar van deze race.");
+                expect(res.body.owners).to.not.include("100000000000000000000005"); // Id user4
+
+                done();
+            });
+        });
 		
 	});
 	
@@ -898,7 +938,8 @@ describe('Testing races route', function() {
 					name: "Location 3",
 					lat: 1.0,
 					long: 2.0,
-					distance: 3.0
+					distance: 3.0,
+                    description: "Description goes here"
 				}
 			};
 			postRequest('/races/300000000000000000000002/location?apikey=admin', waypoint, 200, function(err, res) { // Id race2, authKey admin
@@ -910,6 +951,21 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 400 when location data is incorrect.', function(done) {
+            var waypoint = {
+                location: {
+                    lat: 1.0,
+                    long: 2.0,
+                    distance: 3.0
+                }
+            };
+            postRequest('/races/300000000000000000000001/location?apikey=test', waypoint, 400, function(err, res) { // Id race1, authKey user1
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 	});
 	
@@ -995,17 +1051,119 @@ describe('Testing races route', function() {
             });
         });
 
-        it('should return 200 when checking in', function(done) {
-            putRequest('/races/300000000000000000000001/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race1,
+        it('should return 403 when user 3 checks in to race 1', function(done) {
+            putRequest('/races/300000000000000000000001/location/1/2?apikey=test3', {}, 403, function(err, res) { // Id race1, authKey user3
                 if(err){ return done(err); }
 
                 expect(res.body).to.not.be.undefined;
-                expect(res.body.checkedIn).to.equal(true);
+                expect(res.body.message).to.equal("Je doet niet mee aan deze race");
 
                 done();
             });
         });
 
+        it('should return 200 when checking in to race 1', function(done) {
+            putRequest('/races/300000000000000000000001/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.checkedIn).to.equal(true);
+                expect(res.body.locations.length).to.equal(2);
+
+                done();
+            });
+        });
+
+        it('should not check in if already checked in', function(done) {
+            putRequest('/races/300000000000000000000001/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.checkedIn).to.equal(false);
+                expect(res.body.locations.length).to.equal(2);
+
+                done();
+            });
+        });
+
+        it('should not check in with wrong coordinates', function(done) {
+            putRequest('/races/300000000000000000000001/location/3/4?apikey=test2', {}, 200, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.checkedIn).to.equal(false);
+                expect(res.body.locations.length).to.equal(2);
+
+                done();
+            });
+        });
+
+        it('should return 400 when checking in to race 3', function(done) {
+            putRequest('/races/300000000000000000000003/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.message).to.equal("Race is nog niet gestart! Probeer het later nog eens.");
+
+                done();
+            });
+        });
+
+        it('should return 200 when checking in to race 2', function(done) {
+            putRequest('/races/300000000000000000000002/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race2, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.checkedIn).to.equal(true);
+                expect(res.body.locations.length).to.equal(4);
+
+                done();
+            });
+        });
+
+        it('should return 200 when leaving race', function(done) {
+            deleteRequest('/races/300000000000000000000001/participant?apikey=test2', 200, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.participants).to.have.length(0);
+                expect(res.body.participants).to.not.include("100000000000000000000003"); // Id user2
+
+                done();
+            });
+        });
+
+        it('should return 404 when objectId is invalid', function(done) {
+            putRequest('/races/blabla/location/1/2?apikey=test2', {}, 404, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.message).to.equal("Race niet gevonden");
+
+                done();
+            });
+        });
+
+        it('should return 404 when race does not exist', function(done) {
+            putRequest('/races/800000000000000000000001/location/1/2?apikey=test2', {}, 404, function(err, res) { // Id race1, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.message).to.equal("Race niet gevonden");
+
+                done();
+            });
+        });
+
+        it('should return 400 when incorrect lat/long are given', function(done) {
+            putRequest('/races/300000000000000000000002/location/test/2?apikey=test2', {}, 400, function(err, res) { // Id race2, authKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+
+                done();
+            });
+        });
 
     });
 	

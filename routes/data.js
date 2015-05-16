@@ -13,6 +13,7 @@ function resetData(req, res, next) {
     // Callback voor elke reset functie
     function resetcallback(err) {
         numresets--;
+        /* istanbul ignore if  */
         if (err) {
             errors++;
         }
@@ -25,11 +26,13 @@ function resetData(req, res, next) {
     }
     function addcallback(err) {
         numtasks--;
+        /* istanbul ignore if  */
         if (err) {
             errors++;
         }
 
         if (numtasks == 0) {
+            /* istanbul ignore if  */
             if (errors != 0) {
                 res.status(500);
             }
@@ -169,8 +172,8 @@ function resetData(req, res, next) {
         race1.owners.push(user4._id);
         race1.participants.push(user2._id);
         race1.hasSpecificOrder = false;
-        race1.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000011'), location: location1._id});
-        race1.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000012'), location: location2._id});
+        race1.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000011'), location: location1._id});
+        race1.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000012'), location: location2._id});
         race1.startTime = new Date(2015, 4, 11, 20, 0, 0, 0);
         race1.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race1.private = false;
@@ -183,9 +186,9 @@ function resetData(req, res, next) {
         race2.owners.push(user4._id);
         race2.participants.push(user2._id);
         race2.hasSpecificOrder = false;
-        race2.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000021'), location: location1._id});
-        race2.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000022'), location: location2._id});
-        race2.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
+        race2.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000021'), location: location3._id});
+        race2.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000022'), location: location4._id});
+        race2.startTime = new Date(2015, 4, 11, 20, 0, 0, 0);
         race2.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race2.private = false;
         race2.save(addcallback);
@@ -197,8 +200,8 @@ function resetData(req, res, next) {
         race3.owners.push(user4._id);
         race3.participants.push(user2._id);
         race3.hasSpecificOrder = false;
-        race3.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000031'), location: location1._id});
-        race3.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000032'), location: location2._id});
+        race3.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000031'), location: location5._id});
+        race3.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000032'), location: location6._id});
         race3.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
         race3.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race3.private = false;
@@ -211,8 +214,8 @@ function resetData(req, res, next) {
         race4.owners.push(user4._id);
         race4.participants.push(user2._id);
         race4.hasSpecificOrder = false;
-        race4.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000041'), location: location1._id});
-        race4.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000042'), location: location2._id});
+        race4.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000041'), location: location7._id});
+        race4.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000042'), location: location8._id});
         race4.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
         race4.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race4.private = false;
@@ -225,8 +228,8 @@ function resetData(req, res, next) {
         race5.owners.push(user4._id);
         race5.participants.push(user2._id);
         race5.hasSpecificOrder = false;
-        race5.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000051'), location: location1._id});
-        race5.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000052'), location: location2._id});
+        race5.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000051'), location: location9._id});
+        race5.locations.push({_id: mongoose.Types.ObjectId('400000000000000000000052'), location: location10._id});
         race5.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
         race5.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race5.private = false;

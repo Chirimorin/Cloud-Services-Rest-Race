@@ -18,6 +18,7 @@ function getUUID() {
 
     function uuidExists(value) {
         User.findOne({'authKey': newUuid}, function (err, foundUser) {
+            /* istanbul ignore if  */
             if (foundUser) {
                 return true;
             } else {
@@ -26,6 +27,7 @@ function getUUID() {
         });
     }
 
+    /* istanbul ignore next  */
     while (uuidExists(newUuid)) {
         newUuid = uuid.v4();
     }
@@ -48,6 +50,7 @@ module.exports = function(passport) {
     });
 
     // used to deserialize the user
+    /* istanbul ignore next  */
     passport.deserializeUser(function(id, done) {
         User.findById(id, function(err, user) {
             done(err, user);
@@ -76,6 +79,7 @@ module.exports = function(passport) {
                 // we are checking to see if the user trying to login already exists
                 User.findOne({ 'logins.local.email' :  email }, function(err, user) {
                     // if there are any errors, return the error
+                    /* istanbul ignore if  */
                     if (err)
                         return done(err);
 
@@ -96,6 +100,7 @@ module.exports = function(passport) {
 
                         // save the user
                         newUser.save(function(err) {
+                            /* istanbul ignore if  */
                             if (err) {
                                 if (err.errors['logins.local.email']) {
                                     return done(null, false, req.flash('signupMessage', String(err.errors['logins.local.email'])));
@@ -134,6 +139,7 @@ module.exports = function(passport) {
             // we are checking to see if the user trying to login already exists
             User.findOne({ 'logins.local.email' :  email }, function(err, user) {
                 // if there are any errors, return the error before anything else
+                /* istanbul ignore if  */
                 if (err)
                     return done(err);
 
@@ -146,6 +152,7 @@ module.exports = function(passport) {
                 if (user.authKey == null) {
                     user.authKey = getUUID();
                     user.save(function(err) {
+                        /* istanbul ignore if  */
                         if (err)
                             throw err;
                     })
@@ -162,8 +169,10 @@ module.exports = function(passport) {
         function(req, authKey, done) {
 
             User.findOne({ authKey: authKey }, function (err, user) {
+                /* istanbul ignore if  */
                 if (err) { return done(err); }
                 if (!user) {
+                    /* istanbul ignore if  */
                     if (req.user) {
                         return done (null, req.user);
                     }

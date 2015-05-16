@@ -2,10 +2,12 @@ var express = require('express');
 var request = require('request');
 var _passport;
 
+/* istanbul ignore next  */
 function getHome(req, res, next) {
     res.render('index', {title: 'Express'});
 };
 
+/* istanbul ignore next  */
 function getLogin(req, res, next) {
     if (req.accepts('text/html'))
         return res.render('login', {message: req.flash('loginMessage')});
@@ -15,6 +17,7 @@ function getLogin(req, res, next) {
 
 function postLogin(req, res, next) {
     _passport.authenticate('local-login', function (err, user, info) {
+        /* istanbul ignore if  */
         if (err) {
             return next(err);
         }
@@ -22,9 +25,11 @@ function postLogin(req, res, next) {
             return res.redirect('/login');
         }
         req.logIn(user, function (err) {
+            /* istanbul ignore if  */
             if (err) {
                 return next(err);
             }
+            /* istanbul ignore if  */
             if (req.accepts('text/html'))
                 return res.redirect('/profile');
             else
@@ -33,6 +38,7 @@ function postLogin(req, res, next) {
     })(req, res, next);
 }
 
+/* istanbul ignore next  */
 function getSignup(req, res, next) {
     if (req.accepts('text/html'))
         return res.render('registreren', {message: req.flash('signupMessage')});
@@ -42,6 +48,7 @@ function getSignup(req, res, next) {
 
 function postSignup(req, res, next) {
     _passport.authenticate('local-signup', function (err, user, info) {
+        /* istanbul ignore if  */
         if (err) {
             return next(err);
         }
@@ -49,9 +56,11 @@ function postSignup(req, res, next) {
             return res.redirect('/signup');
         }
         req.logIn(user, function (err) {
+            /* istanbul ignore if  */
             if (err) {
                 return next(err);
             }
+            /* istanbul ignore if  */
             if (req.accepts('text/html'))
                 return res.redirect('/profile');
             else
@@ -60,6 +69,7 @@ function postSignup(req, res, next) {
     })(req, res, next);
 }
 
+/* istanbul ignore next  */
 function getProfile(req, res, next) {
     if (req.user == null)
         return res.redirect('/login');
@@ -68,6 +78,7 @@ function getProfile(req, res, next) {
 }
 
 function logout(req, res, next) {
+    /* istanbul ignore else  */
     if (req.user != null) {
         // Remove the authKey from te user
         var user = req.user;
@@ -75,6 +86,7 @@ function logout(req, res, next) {
 
         // save the user
         user.save(function (err) {
+            /* istanbul ignore if  */
             if (err)
                 throw err;
         });
@@ -86,6 +98,7 @@ function logout(req, res, next) {
     return res.redirect('/');
 }
 
+/* istanbul ignore next  */
 function unauthorized(req, res, next) {
     res.status(401);
     res.json({message: "Unauthorized"});
@@ -94,6 +107,7 @@ function unauthorized(req, res, next) {
 function findLocation(req,res,next) {
     if (req.query.query) {
         request('https://maps.googleapis.com/maps/api/place/textsearch/json?key=AIzaSyBJN8C0Wo7vMvODJUVyV1W-7MGjcOkoiDc&query=' + req.query.query, function(error, response, body) {
+            /* istanbul ignore else  */
             if (!error && response.statusCode == 200) {
                 var result = JSON.parse(body).results[0];
 
@@ -136,8 +150,8 @@ module.exports = function (passport, errCallback) {
         .get(getProfile);
 
     router.route('/logout')
-        .get(logout)
-        .post(logout);
+        .get(passport.authenticate('authKey', {failureRedirect: '/'}), logout)
+        .post(passport.authenticate('authKey', {failureRedirect: '/'}), logout);
 
     router.route('/unauthorized')
         .get(unauthorized)

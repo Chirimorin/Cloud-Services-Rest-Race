@@ -65,7 +65,7 @@ userSchema.methods.hasAnyRole = function(roles){
     var lowerCaseRoles = _.map(this.roles, function(role){ return role.toLowerCase(); });
     for(var index in roles){
         if(_.contains(lowerCaseRoles, roles[index].toLowerCase())){
-            // If any role matches, it's allright, we can return true;
+            // If any role matches, it's all right, we can return true;
             return true;
         }
     };

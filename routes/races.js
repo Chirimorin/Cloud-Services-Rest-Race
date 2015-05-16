@@ -529,7 +529,7 @@ function removeLocation(req, res) {
 
                 for (var i = 0; i < race.locations.length; i++) {
                     /* istanbul ignore else  */
-                    if (race.locations[i]._id == req.params.idLocation) {
+                    if (race.locations[i].location._id == req.params.idLocation) {
                         race.locations[i].remove();
                         break;
                     }
@@ -567,10 +567,10 @@ function addLocationToVisitedLocations(req, res) {
     var lat = parseFloat(req.params.lat);
     var long = parseFloat(req.params.long);
 
-    if (lat == NaN || long == NaN)
+    if ((isNaN(lat) || isNaN(long)))
     {
-        res.status = 400;
-        res.json({ status: 400, message: "Bad Request"});
+        res.status(400);
+        return res.json({ status: 400, message: "Bad Request"});
     }
 
     Race.findById(req.params.id)
@@ -606,8 +606,6 @@ function addLocationToVisitedLocations(req, res) {
                     return res.json({ message: "Race is geëindigd, helaas!" })
                 }
 
-                race = filterLocations(race);
-
                 for (i = 0; i < race.participants.length; i++) {
                     // Stringify on the _ids because otherwise the comparison will always be false.
                     if (!(JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id))) {
@@ -617,9 +615,9 @@ function addLocationToVisitedLocations(req, res) {
                     }
                 }
 
-                var checkedIn = false;
+                race = filterLocations(race)
 
-                console.log("Checking locations...");
+                var checkedIn = false;
 
                 User.findById(req.user._id, function (err, user) {
                     /* istanbul ignore if  */

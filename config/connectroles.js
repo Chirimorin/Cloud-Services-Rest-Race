@@ -5,6 +5,7 @@
 var ConnectRoles = require('connect-roles');
 
 module.exports = function(){
+    /* istanbul ignore next  */
     var roles = new ConnectRoles({
         failureHandler: function (req, res, action) {
             res.statusCode = 403;
@@ -14,6 +15,7 @@ module.exports = function(){
     });
 
     // Admins can do everything
+    /* istanbul ignore next  */
     roles.use(function (req) {
         if (req.user.hasAnyRole('admin')) {
             return true;
