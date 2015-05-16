@@ -9,12 +9,10 @@ var IO;
 
 // Get all races
 function getAllRaces(req, res) {
-
+    /* istanbul ignore if  */
 	if (req.accepts('text/html')) {
 		return res.render('raceAanmaken');
-	}
-	else {
-
+	} else {
 		var user = req.user;
 		var type = req.query.type;
 		var page = (req.query.page ? req.query.page : 1);
@@ -34,17 +32,15 @@ function getAllRaces(req, res) {
             .populate('participants')
             .populate("locations.location")
             .exec(function(err, races) {
+            /* istanbul ignore if  */
 			if (err) {
 				return handleError(req,res,500,err);
-			}
-			else {
+			} else {
 				res.status(200);
 				return res.json(races);
 			}
 		});
-
 	}
-
 }
 
 // Get race by ID
@@ -55,12 +51,14 @@ function getRaceByID(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
         if (err) {
+            /* istanbul ignore else  */
             if (err.kind == "ObjectId") {
                 // ObjectId cast failed, meaning the race doesn't exist.
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
+            } else {
+                return handleError(req, res, 500, err);
             }
-            return handleError(req, res, 500, err);
         } else if (!race) {
             res.status(404);
             return res.json({ message: "Race niet gevonden" });
@@ -68,6 +66,7 @@ function getRaceByID(req, res) {
             race = filterLocations(race);
 
             res.status(200);
+            /* istanbul ignore if  */
             if (req.accepts('text/html')) {
                 var ownerIds = race.owners.map(function(e) { return JSON.stringify(e._id) });
                 var participantIds = race.participants.map(function(e) { return JSON.stringify(e._id) });
@@ -77,9 +76,9 @@ function getRaceByID(req, res) {
 
                 console.log("User " + req.user._id + " " + (isOwner ? "is an owner " : "") + (isParticipant ? "is a participant" : "") + (!isOwner && !isParticipant ? "Is neither owner or participant" : ""));
                 return res.render('race', { "race": race, "isOwner": isOwner, "isParticipant": isParticipant, "userId": req.user._id });
-            }
-            else
+            } else {
                 return res.json(race);
+            }
         }
     });
 }
@@ -93,34 +92,36 @@ function addRace(req, res) {
         private: req.body.private
     });
 
-    if (!race.name || !(race.hasSpecificOrder === true || race.hasSpecificOrder === false) || !race.startTime || !(race.private === true || race.private === false) ) {
-        res.status(400);
-        return res.json({ message: "Niet alle nodige data is ingevuld." });
-    }
-
     race.owners.push(req.user._id);
     typeof req.body.endTime != "undefined" ? race["endTime"] = req.body.endTime : race["endTime"] = null;
 
-    race.save(function (err, race) {
-        if (err) {
-            if (err.kind == "ObjectId") {
-                // ObjectId cast failed, meaning the race doesn't exist.
-                res.status(404);
-                return res.json({ message: "Race niet gevonden" });
-            }
-            return handleError(req, res, 500, err);
-        } else if (!race) {
-            res.status(404);
-            return res.json({ message: "Race niet gevonden" });
+    race.validate(function(v) {
+        if (v != null) {
+            res.status(400);
+            return res.json(v);
         } else {
-            res.status(201);
-			
-			if (req.accepts('text/html')) {
-				return res.render('profile');
-			}
-			else {
-				res.json(race);
-			}
+            race.save(function (err, race) {
+                /* istanbul ignore if  */
+                if (err) {
+                    /* istanbul ignore else  */
+                    if (err.kind == "ObjectId") {
+                        // ObjectId cast failed, meaning the race doesn't exist.
+                        res.status(404);
+                        return res.json({ message: "Race niet gevonden" });
+                    } else {
+                        return handleError(req, res, 500, err);
+                    }
+                } else {
+                    res.status(201);
+
+                    /* istanbul ignore if  */
+                    if (req.accepts('text/html')) {
+                        return res.render('profile');
+                    } else {
+                        res.json(race);
+                    }
+                }
+            });
         }
     });
 }
@@ -134,12 +135,14 @@ function updateRaceByID(req, res) {
         .populate('locations.location')
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -152,15 +155,24 @@ function updateRaceByID(req, res) {
                 race.startTime = req.body.startTime;
                 race.endTime = endTime;
                 race.private = req.body.private;
-                race.save(function (err, race) {
-                    if (err) {
-                        return handleError(req, res, 500, err);
+
+                race.validate(function(v) {
+                    if (v != null) {
+                        res.status(400);
+                        return res.json(v);
                     } else {
-                        raceChanged(race._id);
+                        race.save(function (err, race) {
+                            /* istanbul ignore if  */
+                            if (err) {
+                                return handleError(req, res, 500, err);
+                            } else {
+                                raceChanged(race._id);
+                                res.status(200);
+                                res.json(race);
+                            }
+                        });
                     }
                 });
-                res.status(200);
-                res.json(race);
             }
         });
 }
@@ -169,12 +181,14 @@ function updateRaceByID(req, res) {
 function deleteRaceByID(req, res) {
     Race.findById(req.params.id, function (err, race) {
         if (err) {
+            /* istanbul ignore else  */
             if (err.kind == "ObjectId") {
                 // ObjectId cast failed, meaning the race doesn't exist.
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
+            } else {
+                return handleError(req, res, 500, err);
             }
-            return handleError(req, res, 500, err);
         } else if (!race) {
             res.status(404);
             res.json({status: 404, message: "Race niet gevonden"});
@@ -195,12 +209,14 @@ function addOwner(req, res) {
         .populate('locations.location')
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -208,9 +224,11 @@ function addOwner(req, res) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
             } else {
+                /* istanbul ignore else  */
                 if (race.owners.indexOf(req.params.idOwner) == -1) {
                     race.owners.push(req.params.idOwner);
                     race.save(function (err, race) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
@@ -233,12 +251,14 @@ function removeOwner(req, res) {
         .populate('locations.location')
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -249,6 +269,7 @@ function removeOwner(req, res) {
                 if (race.owners.indexOf(req.params.idOwner) != -1) {
                     race.owners.splice(race.owners.indexOf(req.params.idOwner), 1);
                     race.save(function (err, race) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
@@ -271,12 +292,14 @@ function addParticipant(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -284,14 +307,18 @@ function addParticipant(req, res) {
                 var now = new Date();
                 var raceEnd = new Date(race.endTime);
 
+                /* istanbul ignore if  */
                 if (now > raceEnd) {
+                    // Helaas niet te testen met test data omdat een einddatum niet voor nu mag zijn bij opslaan.
                     res.status = 400;
                     return res.json({ message: "Race is geëindigd, helaas!" })
                 }
 
+                /* istanbul ignore else  */
                 if (race.participants.indexOf(req.user._id) == -1) {
                     race.participants.push(req.user._id);
                     race.save(function (err, race) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
@@ -314,12 +341,14 @@ function removeParticipant(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -337,6 +366,7 @@ function removeParticipant(req, res) {
                         if (race.participants.indexOf(req.params.idParticipant) != -1) {
                             race.participants.splice(race.participants.indexOf(req.params.idParticipant), 1);
                             race.save(function (err, race) {
+                                /* istanbul ignore if  */
                                 if (err) {
                                     return handleError(req, res, 500, err);
                                 } else {
@@ -362,6 +392,7 @@ function removeParticipant(req, res) {
                     if (race.participants.indexOf(req.user._id) != -1) {
                         race.participants.splice(race.participants.indexOf(req.user._id), 1);
                         race.save(function (err, race) {
+                            /* istanbul ignore if  */
                             if (err) {
                                 return handleError(req, res, 500, err);
                             } else {
@@ -383,8 +414,10 @@ function removeParticipant(req, res) {
 function removeUserLocations(userId, locationIds) {
     console.log("Removing locations " + locationIds + " from user " + userId);
 
+    /* istanbul ignore else  */
     if (userId && locationIds) {
         User.findById(userId, function (err, user) {
+            /* istanbul ignore if  */
             if (err) {
                 console.log("Error finding user: " + err);
             } else {
@@ -395,6 +428,7 @@ function removeUserLocations(userId, locationIds) {
                 }
 
                 user.save(function (err, user) {
+                    /* istanbul ignore if  */
                     if (err) {
                         console.log("Error saving user: " + err);
                     } else {
@@ -422,6 +456,7 @@ function addLocation(req, res) {
 
     typeof req.body.location.description != "undefined" ? location["description"] = req.body.location.description : location["description"] = null;
     location.save(function (err, location) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
         }
@@ -433,12 +468,14 @@ function addLocation(req, res) {
         .populate('locations.location')
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -446,9 +483,11 @@ function addLocation(req, res) {
                 res.status(403);
                 res.json({status: 403, message: "Forbidden"});
             } else {
+                /* istanbul ignore else  */
                 if (race.locations.indexOf(req.params.idLocation) == -1) {
                     race.locations.push({orderPosition: req.body.orderPosition, location: location});
                     race.save(function (err, newRace) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         } else {
@@ -457,6 +496,9 @@ function addLocation(req, res) {
                             res.json(newRace);
                         }
                     });
+                } else {
+                    res.status(200);
+                    res.json(race);
                 }
 
             }
@@ -469,12 +511,14 @@ function removeLocation(req, res) {
         .populate('locations.location')
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -484,12 +528,14 @@ function removeLocation(req, res) {
             } else {
 
                 for (var i = 0; i < race.locations.length; i++) {
+                    /* istanbul ignore else  */
                     if (race.locations[i]._id == req.params.idLocation) {
                         race.locations[i].remove();
                         break;
                     }
                 }
                 race.save(function (err, race) {
+                    /* istanbul ignore if  */
                     if (err) {
                         return handleError(req, res, 500, err);
                     } else {
@@ -498,6 +544,7 @@ function removeLocation(req, res) {
                 });
 
                 Location.findByIdAndRemove(req.params.idLocation, function (err, location) {
+                    /* istanbul ignore if  */
                     if (err) {
                         return handleError(req, res, 500, err);
                     }
@@ -510,6 +557,7 @@ function removeLocation(req, res) {
 }
 
 // Geeft pagina terug om locaties aan een race toe te voegen
+/* istanbul ignore next  */
 function getLocationPage(req, res) {
 	res.render('locatiesToevoegen', {"race_id": req.params.id});
 }
@@ -530,12 +578,14 @@ function addLocationToVisitedLocations(req, res) {
         .populate("locations.location")
         .exec(function (err, race) {
             if (err) {
+                /* istanbul ignore else  */
                 if (err.kind == "ObjectId") {
                     // ObjectId cast failed, meaning the race doesn't exist.
                     res.status(404);
                     return res.json({ message: "Race niet gevonden" });
+                } else {
+                    return handleError(req, res, 500, err);
                 }
-                return handleError(req, res, 500, err);
             } else if (!race) {
                 res.status(404);
                 return res.json({ message: "Race niet gevonden" });
@@ -549,26 +599,22 @@ function addLocationToVisitedLocations(req, res) {
                     return res.json({ message: "Race is nog niet gestart! Probeer het later nog eens." })
                 }
 
+                /* istanbul ignore if  */
                 if (now > raceEnd) {
+                    // Helaas ook niet te testen met test data.
                     res.status = 400;
                     return res.json({ message: "Race is geëindigd, helaas!" })
                 }
 
                 race = filterLocations(race);
 
-                var participates = false;
-
-                for (i = 0; i < race.participants.length && !participates; i++) {
+                for (i = 0; i < race.participants.length; i++) {
                     // Stringify on the _ids because otherwise the comparison will always be false.
-                    if (JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id)) {
-                        participates = true;
+                    if (!(JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id))) {
+                        console.log("User " + req.user._id + " is not a participant");
+                        res.status(403);
+                        return res.json({status: 403, message: "Je doet niet mee aan deze race"})
                     }
-                }
-
-                if  (!participates) {
-                    console.log("User " + req.user._id + " is not a participant");
-                    res.status(403);
-                    return res.json({status: 403, message: "Je doet niet mee aan deze race"})
                 }
 
                 var checkedIn = false;
@@ -576,10 +622,10 @@ function addLocationToVisitedLocations(req, res) {
                 console.log("Checking locations...");
 
                 User.findById(req.user._id, function (err, user) {
+                    /* istanbul ignore if  */
                     if (err) {
                         return handleError(req, res, 500, err);
-                    }
-                    else {
+                    } else {
                         for (i = 0; i < race.locations.length; i++) {
                             var location = race.locations[i].location;
 
@@ -606,6 +652,7 @@ function addLocationToVisitedLocations(req, res) {
                         }
                         console.log("Saving user...");
                         user.save(function (err, user) {
+                            /* istanbul ignore if  */
                             if (err) {
                                 return handleError(req, res, 500, err);
                             } else {
@@ -615,10 +662,9 @@ function addLocationToVisitedLocations(req, res) {
                                     .populate("participants")
                                     .populate("locations.location")
                                     .exec(function (err, newRace){
+                                        /* istanbul ignore else  */
                                         if (!err) {
                                             raceChanged(newRace._id);
-                                            //filterLocations(newRace);
-                                            //IO.to(req.params.id).emit("userCheckedIn", newRace);
                                         }
                                         return res.json({checkedIn: checkedIn, locations: user.visitedLocations});
                                     });
@@ -640,6 +686,7 @@ function raceChanged(raceId) {
         .populate("owners")
         .populate("locations.location")
         .exec(function (err, race) {
+            /* istanbul ignore if  */
             if (err || !race) {
                 console.log("Error loading race " + raceId);
                 console.log(err);
@@ -651,18 +698,6 @@ function raceChanged(raceId) {
 }
 
 function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
-    //var R = 6371; // Radius of the earth in km
-    //var dLat = deg2rad(lat2-lat1);  // deg2rad below
-    //var dLon = deg2rad(lon2-lon1);
-    //var a =
-    //        Math.sin(dLat/2) * Math.sin(dLat/2) +
-    //        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    //        Math.sin(dLon/2) * Math.sin(dLon/2)
-    //    ;
-    //var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    //var d = R * c; // Distance in km
-    //return (d * 1000);
-
     var radlat1 = Math.PI * lat1/180
     var radlat2 = Math.PI * lat2/180
     var radlon1 = Math.PI * lon1/180
@@ -675,18 +710,15 @@ function getDistanceFromLatLonInM(lat1,lon1,lat2,lon2) {
     dist = dist * 60 * 1.1515
     dist = dist * 1609.344
     return dist
-
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI/180)
 }
 
 function filterLocations(race) {
     // Make sure no false references are present in the race.
     race = cleanupRace(race);
 
+    /* istanbul ignore else  */
     if (race) {
+        /* istanbul ignore else  */
         if (race.locations) {
             // Map all location Ids that are part of this race.
             var locationIds = race.locations.map(function (e) {
@@ -711,7 +743,9 @@ function filterLocations(race) {
                     }
 
                     // If the location was not found, remove it from the user array. This is safe due to the backwards looping of visitedLocations
+                    /* istanbul ignore if  */
                     if (!found) {
+                        // Only happens if there's false data in the database. It's good if this never runs.
                         race.participants[i].visitedLocations.splice(j, 1);
                     }
 
@@ -723,8 +757,10 @@ function filterLocations(race) {
     return race;
 }
 
+/* istanbul ignore next  */
 function cleanupRace(race) {
     // This functions clears all wrong references.
+    // Ignored for code coverage because it normally doesn't do anything.
 
     if (race) {
         var edited = false;
@@ -818,6 +854,7 @@ router.route('/:id/location/:lat/:long')
 // Export
 module.exports = function (mongoose, errCallback, io) {
     IO = io;
+    /* istanbul ignore next  */
     io.on("connection", function(socket) {
         console.log("Races route socket connection!")
         socket.on("joinRoom", function(raceId) {
