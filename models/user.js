@@ -58,6 +58,7 @@ var _ = require('underscore');
 userSchema.methods.hasAnyRole = function(roles){
     console.log("has any role");
 
+    /* istanbul ignore next  */
     if(!Array.isArray(roles)){
         roles = [roles];
     }
@@ -72,26 +73,5 @@ userSchema.methods.hasAnyRole = function(roles){
 
     return false;
 };
-
-userSchema.methods.hasAllRoles = function(roles){
-    if(!Array.isArray(roles)){
-        roles = [roles];
-    }
-
-    var lowerCaseRoles = _.map(this.roles, function(role){ return role.toLowerCase(); });
-    for(var index in roles){
-        if(!_.contains(lowerCaseRoles, roles[index].toLowerCase())){
-            // If any role doesn't match, we can return false.
-            return false;
-        }
-    };
-
-    return true;
-};
-
-userSchema.methods.getDisplayName = function() {
-    return (this.nickname != null ? this.nickname : this.logins.local.email);
-};
-
 
 module.exports = mongoose.model('User', userSchema);
