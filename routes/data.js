@@ -171,7 +171,7 @@ function resetData(req, res, next) {
         race1.hasSpecificOrder = false;
         race1.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000011'), location: location1._id});
         race1.locations.push({_id: mongoose.Types.ObjectId('200000000000000000000012'), location: location2._id});
-        race1.startTime = new Date(2015, 5, 11, 20, 0, 0, 0);
+        race1.startTime = new Date(2015, 4, 11, 20, 0, 0, 0);
         race1.endTime = new Date(2015, 5, 12, 30, 0, 0);
         race1.private = false;
         race1.save(addcallback);

@@ -20,7 +20,7 @@ function getRequest(route, statusCode, done) {
 function postRequest(route, data, statusCode, done) {
 	request(app)
 		.post(route)
-		.set('Accept',  'application/json')
+		.set('Accept', 'application/json')
 		.send(data)
 		.expect(statusCode)
 		.end(function(err, res) {
@@ -33,7 +33,7 @@ function postRequest(route, data, statusCode, done) {
 function putRequest(route, data, statusCode, done) {
 	request(app)
 		.put(route)
-		.set('Accept',  'application/json')
+		.set('Accept', 'application/json')
 		.send(data)
 		.expect(statusCode)
 		.end(function(err, res) {
@@ -46,7 +46,7 @@ function putRequest(route, data, statusCode, done) {
 function deleteRequest(route, statusCode, done) {
 	request(app)
 		.delete(route)
-		.set('Accept',  'application/json')
+		.set('Accept', 'application/json')
 		.expect(statusCode)
 		.end(function(err, res) {
 			if(err){ return done(err); }
@@ -77,27 +77,93 @@ describe('Testing races route', function() {
 			});			
 		});
 		
-		it('should return 200 when logged in', function(done) {
-			getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
+		it('should return 5 races for owner request', function(done) {
+			getRequest('/races?type=owner&apikey=test', 200, function(err, res) { // AuthKey user1
 				if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(5);
 				
 				done();
 			});
 		});
-		
-		it('should return 5 races', function(done) {
-			getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
-				if(err){ return done(err); }
 
-                console.log(res.body);
+        it('should return 0 races for owner request when not an owner', function(done) {
+            getRequest('/races?type=owner&apikey=test2', 200, function(err, res) { // AuthKey user2
+                if(err){ return done(err); }
 
-				expect(res.body).to.not.be.undefined;
-				expect(res.body).to.have.length(5);
-					
-				done();
-			});	
-		});	
-		
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(0);
+
+                done();
+            });
+        });
+
+        it('should return 5 public races for owner request', function(done) {
+            getRequest('/races?type=public&apikey=test', 200, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(5);
+
+                done();
+            });
+        });
+
+        it('should return 5 public races for non-owner request', function(done) {
+            getRequest('/races?type=public&apikey=test2', 200, function(err, res) { // AuthKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(5);
+
+                done();
+            });
+        });
+
+        it('should return 2 public races with pageSize=2', function(done) {
+            getRequest('/races?type=public&pageSize=2&apikey=test', 200, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(2);
+
+                done();
+            });
+        });
+
+        it('should return 0 participating races for a non-participating user.', function(done) {
+            getRequest('/races?type=participant&apikey=test', 200, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(0);
+
+                done();
+            });
+        });
+
+        it('should return 5 participating races for a participating user.', function(done) {
+            getRequest('/races?type=participant&apikey=test2', 200, function(err, res) { // AuthKey user2
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(5);
+
+                done();
+            });
+        });
+
+        it('should return 200 when logged in', function(done) {
+            getRequest('/races?apikey=test', 200, function(err, res) { // AuthKey user1
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body).to.have.length(5);
+
+                done();
+            });
+        });
 	});
 	
 	describe('Get race by ID', function() {
@@ -139,7 +205,7 @@ describe('Testing races route', function() {
 			});	
 		});
 		
-		it('should return 404 when race is wrong', function(done) { // AuthKey user1
+		it('should return 404 when objectId is invalid', function(done) { // AuthKey user1
 			getRequest('/races/blabla?apikey=test', 404, function(err, res) {
 				if(err){ return done(err); }
 				
@@ -321,22 +387,37 @@ describe('Testing races route', function() {
 		});
 		
 		it('should return 200 when user is admin', function(done) {
-			var race = {
-				name: "Race 2 Aangepast",
-				hasSpecificOrder: true,
-				startTime: new Date(2015, 5, 13, 20, 0, 0, 0),
-				endTime: new Date(2015, 5, 14, 30, 0, 0),
-				private: false
-			};
-			putRequest('/races/300000000000000000000002?apikey=admin', race, 200, function(err, res) { // Id race2, authKey admin
-				if(err){ return done(err); }
-				
-				expect(res.body).to.not.be.undefined;
-				expect(res.body.name).to.equal("Race 2 Aangepast");
-				
-				done();
-			});			
-		});
+            var race = {
+                name: "Race 2 Aangepast",
+                hasSpecificOrder: true,
+                startTime: new Date(2015, 5, 13, 20, 0, 0, 0),
+                endTime: new Date(2015, 5, 14, 30, 0, 0),
+                private: false
+            };
+            putRequest('/races/300000000000000000000002?apikey=admin', race, 200, function(err, res) { // Id race2, authKey admin
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.name).to.equal("Race 2 Aangepast");
+
+                done();
+            });
+        })
+
+        it('should return 400 when data is invalid', function(done) {
+            var race = {
+                name: "Race 2 Aangepast",
+                hasSpecificOrder: true,
+                startTime: "geen datum",
+                endTime: new Date(2015, 5, 14, 30, 0, 0),
+                private: false
+            };
+            putRequest('/races/300000000000000000000002?apikey=admin', race, 400, function(err, res) { // Id race2, authKey admin
+                if(err){ return done(err); }
+
+                done();
+            });
+        });
 		
 	});
 	
@@ -475,6 +556,18 @@ describe('Testing races route', function() {
 				done();
 			});			
 		});
+
+        it('should return 200 when added user is already admin', function(done) {
+            putRequest('/races/300000000000000000000002/owner/100000000000000000000003?apikey=admin', null, 200, function(err, res) { // Id race2, id user2, authKey admin
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.owners).to.have.length(3);
+                expect(res.body.owners).to.include("100000000000000000000003"); // Id user2
+
+                done();
+            });
+        });
 		
 	});
 	
@@ -887,5 +980,33 @@ describe('Testing races route', function() {
 		});
 		
 	});
+
+    describe('Check in', function() {
+
+        // Reset data in de database.
+        // Dit is een test case omdat anders de tests uit worden gevoerd voor de data reset klaar is.
+        it('should have status 200 for the data reset', function (done) {
+            getRequest('/data', 200, function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+
+                done();
+            });
+        });
+
+        it('should return 200 when checking in', function(done) {
+            putRequest('/races/300000000000000000000001/location/1/2?apikey=test2', {}, 200, function(err, res) { // Id race1,
+                if(err){ return done(err); }
+
+                expect(res.body).to.not.be.undefined;
+                expect(res.body.checkedIn).to.equal(true);
+
+                done();
+            });
+        });
+
+
+    });
 	
 });
