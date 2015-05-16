@@ -20,6 +20,7 @@ mongoose.connect(configDB.url); // connect to our database
 require('./config/passport')(passport); // pass passport for configuration
 var roles = require('./config/connectroles')(); // Connect roles configuration
 
+/* istanbul ignore next  */
 function handleError(req, res, statusCode, message){
     console.log();
     console.log('-------- Error handled --------');
@@ -42,7 +43,7 @@ app.io = io;
 var routes = require('./routes/index')(passport);
 var users = require('./routes/users')(mongoose, passport, roles, handleError);
 var races = require('./routes/races')(mongoose, handleError, io);
-var locations = require('./routes/locations')(mongoose, handleError);
+var data = require('./routes/data')(mongoose);
 var session   = require('express-session');
 
 // Allow cross origin requests
@@ -52,10 +53,10 @@ var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
     // intercept OPTIONS method
+    /* istanbul ignore if  */
     if ('OPTIONS' == req.method) {
         res.send(200);
-    }
-    else {
+    } else {
         next();
     }
 };
@@ -84,37 +85,40 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 app.use('/', routes);
 app.use('/users', users);
 app.use('/races', races);
-app.use('/locations', locations);
+app.use('/data', data);
 
 // catch 404 and forward to error handler
+/* istanbul ignore next  */
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handlers
 
 // development error handler
 // will print stacktrace
+/* istanbul ignore next  */
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
+    app.use(function(err, req, res, next) {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
     });
-  });
 }
 
 // production error handler
 // no stacktraces leaked to user
+/* istanbul ignore next  */
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
 });
 
 

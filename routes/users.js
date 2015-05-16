@@ -10,10 +10,10 @@ var User;
 /* GET users listing. */
 function getUsers(req, res, next) {
     User.find({}, function (err, users) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
-        }
-        else {
+        }else {
             res.status(200);
             res.json(users);
         }
@@ -25,10 +25,10 @@ function setNickname(req, res, next) {
     user.nickname = (req.body.nickname != "" ? req.body.nickname : null);
 
     user.save(function (err, user) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else {
             res.status(200);
             res.json({status: 200, message: "Nickname succesvol aangepast."});
         }
@@ -37,10 +37,10 @@ function setNickname(req, res, next) {
 
 function setUserNickname(req, res, next) {
     User.findByIdAndUpdate(req.params.id, {$set: {nickname: req.body.nickname}}, function (err, user) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else {
             res.status(200);
             res.json({status: 200, message: "Nickname succesvol aangepast."});
         }
@@ -49,17 +49,19 @@ function setUserNickname(req, res, next) {
 
 function addUserRole(req, res, next) {
     User.findById(req.params.id, function (err, user) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else {
             if (!user) {
                 res.status(404);
                 res.json({status: 404, message: "Gebruiker niet gevonden."});
             } else {
+                /* istanbul ignore else  */
                 if (user.roles.indexOf(req.body.role) == -1) {
                     user.roles.push(req.body.role);
                     user.save(function (err, user) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         }
@@ -74,18 +76,20 @@ function addUserRole(req, res, next) {
 
 function deleteUserRole(req, res, next) {
     User.findById(req.params.id, function (err, user) {
+        /* istanbul ignore if  */
         if (err) {
             return handleError(req, res, 500, err);
-        }
-        else {
+        } else {
             if (!user) {
                 res.status(404);
                 res.json({status: 404, message: "Gebruiker niet gevonden."});
             } else {
                 var roleIndex = user.roles.indexOf(req.body.role)
+                /* istanbul ignore else  */
                 if (roleIndex != -1) {
                     user.roles.splice(roleIndex, 1);
                     user.save(function (err, user) {
+                        /* istanbul ignore if  */
                         if (err) {
                             return handleError(req, res, 500, err);
                         }
