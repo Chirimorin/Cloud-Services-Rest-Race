@@ -74,6 +74,7 @@ userSchema.methods.hasAnyRole = function(roles){
     return false;
 };
 
+/* istanbul ignore next  */
 userSchema.methods.getDisplayName = function() {
     return (this.nickname != null ? this.nickname : this.logins.local.email);
 };
