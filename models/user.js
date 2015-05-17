@@ -74,4 +74,8 @@ userSchema.methods.hasAnyRole = function(roles){
     return false;
 };
 
+userSchema.methods.getDisplayName = function() {
+    return (this.nickname != null ? this.nickname : this.logins.local.email);
+};
+
 module.exports = mongoose.model('User', userSchema);
