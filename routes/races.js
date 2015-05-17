@@ -606,13 +606,19 @@ function addLocationToVisitedLocations(req, res) {
                     return res.json({ message: "Race is geëindigd, helaas!" })
                 }
 
+                var participates = false;
+
                 for (i = 0; i < race.participants.length; i++) {
                     // Stringify on the _ids because otherwise the comparison will always be false.
-                    if (!(JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id))) {
-                        console.log("User " + req.user._id + " is not a participant");
-                        res.status(403);
-                        return res.json({status: 403, message: "Je doet niet mee aan deze race"})
+                    if ((JSON.stringify(race.participants[i]._id) == JSON.stringify(req.user._id))) {
+                        participates = true;
                     }
+                }
+
+                if (!participates) {
+                    console.log("User " + req.user._id + " is not a participant");
+                    res.status(403);
+                    return res.json({status: 403, message: "Je doet niet mee aan deze race"})
                 }
 
                 race = filterLocations(race)
